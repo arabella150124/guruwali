@@ -254,11 +254,11 @@
     <!-- MAIN DISPLAY AREA -->
     <main class="main-content flex-1 lg:ml-64 flex flex-col min-h-screen">
       
-      <!-- HEADER BAR -->
+      <!-- HEADER BAR (PERBAIKAN ID DI SINI) -->
       <header class="no-print bg-white/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-100 p-4 flex items-center justify-between">
         <div>
           <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider" id="header-subtitle">SMKS SANJAYA BAJAWA</p>
-          <h2 class="font-bold text-slate-950 text-base font-comfortaa" id="header-title font-comfortaa">Beranda</h2>
+          <h2 class="font-bold text-slate-950 text-base font-comfortaa" id="header-title">Beranda</h2>
         </div>
         <div class="flex items-center space-x-2">
           <!-- Konektor Mode & Firebase Config -->
@@ -857,7 +857,7 @@
         
         <div>
           <label class="block font-bold text-slate-600 mb-1">Google Apps Script Web App URL (GAS API)</label>
-          <input type="text" id="cfg-gas-url" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none" placeholder="https://script.google.com/macros/s/AKfycbx7hgkQUU9f2iczhZ3lwuOX7u2FxA60qSwzL-ff0eYMj8W0OSYaIHkBKqBxYD9CHf0wJg/exec">
+          <input type="text" id="cfg-gas-url" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none" placeholder="https://script.google.com/macros/s/xxxx/exec">
         </div>
 
         <div class="border-t border-slate-100 pt-3">
@@ -977,7 +977,7 @@
 
   <script>
     let IS_PREVIEW = false;
-    let GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7hgkQUU9f2iczhZ3lwuOX7u2FxA60qSwzL-ff0eYMj8W0OSYaIHkBKqBxYD9CHf0wJg/exec";
+    let GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXnbbqE1b6lSXRtXhlWWINDmp0vnJVHCPyStsmbn4Lmwipurm--SzC8Dl9uExE6Cd9yQ/exec";
 
     let dbInstance = null;
     let currentUser = null; 
@@ -990,7 +990,7 @@
       journals: []
     };
 
-    // 19 Master Siswa Awal SMKS SANJAYA BAJAWA (Acuan image_83751f.png)
+    // 19 Master Siswa Awal SMKS SANJAYA BAJAWA
     const DUMMY_STUDENTS_INITIAL = [
       { id: "std_1", nama_siswa: "Aditya Bagus Septiawan", nisn: "0012543210", kelas_id: "Kelas XI-TKJ 1", gender: "L", kontak: "081234567001", catatan: "Minat kuat teknologi jaringan komputer", guru_wali_id: "wali_petrus" },
       { id: "std_2", nama_siswa: "Anis Nona Lya Rama Dani", nisn: "0012543211", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567002", catatan: "Aktif OSIS dan Kepramukaan", guru_wali_id: "wali_petrus" },
@@ -1078,7 +1078,7 @@
         
         await fetch(GAS_WEB_APP_URL, {
           method: 'POST',
-          mode: 'no-cors', // Menghindari isu CORS di lingkungan sandbox browser
+          mode: 'no-cors',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -1392,7 +1392,11 @@
         mobBtn.classList.remove('text-slate-500');
       }
 
-      document.getElementById('header-title').innerText = viewId.toUpperCase();
+      // Perubahan yang memperbaiki crash
+      const headerEl = document.getElementById('header-title');
+      if (headerEl) {
+        headerEl.innerText = viewId.toUpperCase();
+      }
       await reloadCloudState();
       renderView(viewId);
     }
@@ -2309,7 +2313,7 @@
     });
   </script>
 
-  <!-- PWA Service Worker (Instalasi Aplikasi di Perangkat HP/Tablet) -->
+  <!-- PWA Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       try {
