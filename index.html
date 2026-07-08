@@ -113,41 +113,30 @@
 
   <!-- AESTHETIC WELCOME SCREEN -->
   <div id="welcome-screen" class="fixed inset-0 z-40 bg-[#EBE0D0] flex flex-col items-center justify-between p-6 overflow-hidden">
-    <!-- Top-Right Abstract Organic Blob -->
     <div class="absolute -top-12 -right-12 w-48 h-48 bg-[#a88a6d] opacity-80 blob pointer-events-none"></div>
-    <!-- Middle-Right Speckled circles -->
     <div class="absolute right-4 top-1/3 flex flex-col gap-2 opacity-30 pointer-events-none">
       <span class="w-4 h-4 rounded-full bg-[#5c3a1a]"></span>
       <span class="w-6 h-6 rounded-full bg-[#8c6239]"></span>
     </div>
-    <!-- Bottom-Left Abstract Organic Blob -->
     <div class="absolute -bottom-16 -left-16 w-56 h-56 bg-[#704c34] opacity-80 blob pointer-events-none"></div>
     
-    <!-- Header Identitas Sekolah -->
     <div class="w-full text-center mt-6 z-10">
       <h1 class="text-xs uppercase font-extrabold tracking-widest text-[#5d4037] opacity-80">Sistem Informasi Guru Wali</h1>
       <h2 class="text-lg font-bold font-comfortaa text-brand-900 mt-1">SMKS SANJAYA BAJAWA</h2>
       <p class="text-[10px] font-semibold text-slate-600">NPSN: 50302966 • TA 2026/2027</p>
     </div>
 
-    <!-- Main Aesthetic Center Content (Bubble Text) -->
     <div class="relative flex flex-col items-center justify-center my-auto z-10">
-      <!-- Decorative speckled dots -->
       <div class="absolute -top-6 left-6 flex gap-1 pointer-events-none">
         <span class="w-2.5 h-2.5 rounded-full bg-[#8c6239] opacity-40"></span>
         <span class="w-1.5 h-1.5 rounded-full bg-[#8c6239] opacity-50"></span>
       </div>
       
-      <!-- Speech/Cloud Bubble -->
       <div class="relative bg-white/95 px-8 py-10 rounded-[40px] shadow-2xl border-2 border-[#8c6239] text-center max-w-sm mx-4 transform hover:scale-105 transition duration-300">
-        <!-- Inside Dashed Border Stitch -->
         <div class="absolute inset-2.5 rounded-[30px] border-2 border-dashed border-[#8c6239]/40 pointer-events-none"></div>
-        
-        <!-- Speckled Brown dots around bubble design -->
         <div class="absolute -bottom-1 left-12 w-3 h-3 rounded-full bg-[#8c6239] opacity-70"></div>
         <div class="absolute -top-2 right-10 w-2 h-2 rounded-full bg-[#8c6239] opacity-80"></div>
 
-        <!-- Handwritten Title -->
         <h3 class="text-5xl md:text-6xl font-handwritten text-[#8c6239] py-4 select-none leading-none">
           Jurnal Guru Wali
         </h3>
@@ -156,7 +145,6 @@
         <div class="absolute -bottom-5 right-14 w-0 h-0 border-t-[19px] border-t-[#8c6239] border-l-[19px] border-l-transparent border-r-[19px] border-r-transparent -z-10"></div>
       </div>
 
-      <!-- Action Button Area -->
       <div class="mt-14 w-full flex flex-col items-center gap-3">
         <button onclick="openLoginScreen()" class="px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-comfortaa font-bold rounded-2xl shadow-xl hover:shadow-brand-500/20 active:scale-95 transition-all text-sm flex items-center gap-2 tracking-wide border-b-4 border-brand-900">
           <i class="fa-solid fa-right-to-bracket text-base"></i> Buka Portal Login
@@ -165,7 +153,6 @@
       </div>
     </div>
 
-    <!-- Footer Decorative Line -->
     <div class="w-full text-center pb-2 z-10 opacity-40">
       <div class="w-24 h-1 bg-[#8c6239] mx-auto rounded-full"></div>
     </div>
@@ -186,7 +173,6 @@
         <p class="text-slate-500 text-[11px] font-medium">Masuk berdasarkan Peran Kerja Anda</p>
       </div>
 
-      <!-- Auth Tabs with 4 Roles support -->
       <div class="grid grid-cols-4 gap-1 border-b border-slate-200 mb-5 text-[10px] text-center font-bold">
         <button id="tab-login-guru" onclick="switchAuthTab('guru')" class="pb-2 text-brand-600 border-b-2 border-brand-600">
           Wali Asuh
@@ -202,7 +188,6 @@
         </button>
       </div>
 
-      <!-- Login Form -->
       <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-bold uppercase text-slate-500 mb-1" id="label-username">Username / NIP</label>
@@ -247,12 +232,10 @@
         </div>
       </div>
 
-      <!-- Navigation Menus -->
       <nav id="desktop-nav" class="flex-1 p-4 space-y-1 overflow-y-auto">
         <!-- Rendered by JS -->
       </nav>
 
-      <!-- User Profile Card -->
       <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
         <div class="flex items-center space-x-3 overflow-hidden">
           <div class="h-9 w-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0" id="user-avatar">
@@ -289,13 +272,11 @@
         </div>
       </header>
 
-      <!-- DYNAMIC CONTAINER -->
       <div id="view-container" class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
         <!-- Dyn. views injected here -->
       </div>
     </main>
 
-    <!-- MOBILE NAVIGATION -->
     <nav class="bottom-nav-mobile no-print fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-2xl flex items-center justify-around py-2 z-30 px-2">
       <!-- Dyn. menus -->
     </nav>
@@ -371,7 +352,6 @@
           <p class="text-[10px] text-slate-500 mt-0.5">Kelola data murid asuhan binaan khusus Anda di bawah ini</p>
         </div>
         
-        <!-- Live Smart Filter/Search Input -->
         <div class="relative w-full md:w-72">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
             <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -380,7 +360,6 @@
         </div>
       </div>
 
-      <!-- Student List Table -->
       <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -414,7 +393,6 @@
         <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 font-comfortaa uppercase">Catat Pertemuan Jurnal</h3>
         
         <form id="form-jurnal-pertemuan" onsubmit="saveJurnalPertemuan(event)" class="space-y-3.5 text-xs">
-          <!-- Advanced Auto-Complete Search Selection -->
           <div class="relative">
             <label class="block font-bold text-slate-600 mb-1">Cari Peserta Didik Dampingan</label>
             <div class="relative">
@@ -423,7 +401,6 @@
               </span>
               <input type="text" id="jurnal-siswa-search" oninput="searchSiswaForJournal()" placeholder="Ketik nama siswa..." class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none" required>
             </div>
-            <!-- Injected Search Suggestion Dropdown -->
             <div id="jurnal-siswa-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto hidden divide-y divide-slate-50"></div>
             <input type="hidden" id="jurnal-siswa-id" required>
           </div>
@@ -543,7 +520,7 @@
       <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm print-page text-xs leading-relaxed" id="printable-report-sheet">
         <!-- Formal Heading -->
         <div class="text-center border-b-4 border-slate-900 pb-3 mb-5">
-          <h2 class="text-base font-extrabold uppercase text-slate-900 tracking-wide font-comfortaa">LAPORAN SEMESTER GURU WALI</h2>
+          <h2 class="text-base font-extrabold uppercase text-slate-900 tracking-wide font-comfortaa">FORMAT PELAPORAN SEMESTER GURU WALI</h2>
           <h3 class="text-sm font-bold text-slate-700">SMKS SANJAYA BAJAWA</h3>
           <p class="text-[9px] text-slate-500 mt-1">NPSN: 50302966 • TA 2026/2027 • Kurikulum Merdeka</p>
         </div>
@@ -652,7 +629,7 @@
     </div>
   </template>
 
-  <!-- VIEW TEMPLATE: SOP (2 Halaman Lengkap) -->
+  <!-- VIEW TEMPLATE: SOP -->
   <template id="tmpl-guru-sop">
     <div class="max-w-4xl mx-auto space-y-8 no-print">
       <div class="flex justify-end">
@@ -676,7 +653,6 @@
         </div>
 
         <div class="space-y-4 text-justify">
-          <!-- A. Dasar Hukum -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">A. Dasar Hukum</h4>
             <ol class="list-decimal pl-5 space-y-1 text-slate-600">
@@ -687,7 +663,6 @@
             </ol>
           </div>
 
-          <!-- B. Pengertian -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">B. Pengertian</h4>
             <p class="text-slate-600">
@@ -695,7 +670,6 @@
             </p>
           </div>
 
-          <!-- C. Tujuan -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">C. Tujuan</h4>
             <p class="text-slate-600 mb-1">Adapun tujuan guru wali yaitu:</p>
@@ -706,7 +680,6 @@
             </ol>
           </div>
 
-          <!-- D. Ruang Lingkup Tugas -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">D. Ruang Lingkup Tugas</h4>
             <p class="text-slate-600 mb-1">Berdasarkan Pasal 9 ayat (2), Guru Wali melaksanakan tugas sebagai berikut:</p>
@@ -730,7 +703,6 @@
             </ol>
           </div>
 
-          <!-- E. Prosedur Pelaksanaan 1 -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">E. Prosedur Pelaksanaan</h4>
             <div class="text-slate-600">
@@ -744,10 +716,9 @@
         </div>
       </div>
 
-      <!-- HALAMAN 2 (SOP - PAGE BREAK ON PRINT) -->
+      <!-- HALAMAN 2 (SOP) -->
       <div class="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm print-page page-break">
         <div class="space-y-5 text-justify">
-          <!-- E. Prosedur Pelaksanaan 2 (Tabel Tugas) -->
           <div>
             <strong class="text-slate-800 block mb-2">2. Pelaksanaan Tugas</strong>
             <table class="w-full border-collapse border border-slate-300 text-[10px]">
@@ -800,7 +771,6 @@
             </table>
           </div>
 
-          <!-- F. Evaluasi dan Pelaporan -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">F. Evaluasi dan Pelaporan</h4>
             <ol class="list-decimal pl-5 space-y-1 text-slate-600">
@@ -816,7 +786,6 @@
             </ol>
           </div>
 
-          <!-- G. Ekuivalensi Beban Kerja -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">G. Ekuivalensi Beban Kerja</h4>
             <ol class="list-decimal pl-5 space-y-1 text-slate-600">
@@ -825,7 +794,6 @@
             </ol>
           </div>
 
-          <!-- H. Penutup -->
           <div>
             <h4 class="font-bold text-slate-900 uppercase mb-1">H. Penutup</h4>
             <p class="text-slate-600 italic">
@@ -880,7 +848,6 @@
           </div>
 
           <div class="space-y-4 text-xs">
-            <!-- 1. Pilih Guru Wali -->
             <div>
               <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-user-tie mr-1 text-brand-500"></i>1. Pilih Guru Wali (Pendamping)</label>
               <select id="admin-select-guru" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
@@ -888,7 +855,6 @@
               </select>
             </div>
 
-            <!-- 2. Pilih Kelas -->
             <div>
               <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-school mr-1 text-brand-500"></i>2. Pilih Kelas Asal Siswa</label>
               <select id="admin-select-kelas" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
@@ -896,7 +862,6 @@
               </select>
             </div>
 
-            <!-- 3. Cari & Tambah Siswa -->
             <div class="relative">
               <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-search mr-1 text-brand-500"></i>3. Cari & Tambah Siswa Dampingan</label>
               <div class="relative">
@@ -905,11 +870,9 @@
                 </span>
                 <input type="text" id="admin-student-search" oninput="searchSiswaForMapping()" placeholder="Pilih Guru & Kelas terlebih dahulu..." class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-medium" disabled>
               </div>
-              <!-- Search suggestions drop -->
               <div id="admin-student-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto hidden divide-y divide-slate-100"></div>
             </div>
 
-            <!-- List of Currently Assigned Students -->
             <div class="pt-2 border-t border-slate-100">
               <h5 class="font-extrabold text-slate-700 text-[10px] uppercase tracking-wider mb-2"><i class="fa-solid fa-users-viewfinder mr-1 text-brand-600"></i>Siswa Binaan Saat Ini:</h5>
               <div id="admin-assigned-students-list" class="border border-slate-150 rounded-xl divide-y divide-slate-100 max-h-56 overflow-y-auto bg-slate-50">
@@ -1028,7 +991,7 @@
 
   <!-- APP CONTROLLER JAVASCRIPT -->
   <script>
-    let IS_PREVIEW = true;
+    let IS_PREVIEW = false;
     
     let firebaseConfig = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
@@ -1051,7 +1014,6 @@
       journals: []
     };
 
-    // 19 Default Students of SMKS SANJAYA BAJAWA
     const DUMMY_STUDENTS_INITIAL = [
       { id: "std_1", nama_siswa: "Aditya Bagus Septiawan", nisn: "0012543210", kelas_id: "Kelas XI-TKJ 1", gender: "L", kontak: "081234567001", catatan: "Minat kuat di teknologi jaringan komputer", guru_wali_id: "wali_petrus" },
       { id: "std_2", nama_siswa: "Anis Nona Lya Rama Dani", nisn: "0012543211", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567002", catatan: "Aktif di kegiatan OSIS dan Kepramukaan", guru_wali_id: "wali_petrus" },
@@ -1074,7 +1036,6 @@
       { id: "std_19", nama_siswa: "Ratu Claudya Jelita Putri H.", nisn: "0012543228", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567019", catatan: "Aktif di PMR sekolah", guru_wali_id: "wali_maria" }
     ];
 
-    // Initial users database
     const DUMMY_USERS_INITIAL = {
       "wali_petrus": { nama_guru: "Petrus Bala, S.Kom.", password: "password123", role: "guru_wali", nip: "198305142010012055" },
       "wali_maria": { nama_guru: "Maria G. Reka, S.Pd.", password: "password123", role: "guru_wali", nip: "197811122008011044" },
@@ -1091,12 +1052,21 @@
       document.getElementById('app-loading').classList.add('hidden');
     });
 
-    // AUTO DATABASE INITIATION
     async function autoSetupDatabase() {
       if (IS_PREVIEW) {
-        if (!localStorage.getItem('jurnal_wali_users')) {
-          localStorage.setItem('jurnal_wali_users', JSON.stringify(DUMMY_USERS_INITIAL));
+        // Logika Auto-Heal: Memastikan semua akun dummy (terutama admin) selalu terdaftar
+        let users = JSON.parse(localStorage.getItem('jurnal_wali_users'));
+        if (!users) {
+          users = DUMMY_USERS_INITIAL;
+        } else {
+          for (const [key, val] of Object.entries(DUMMY_USERS_INITIAL)) {
+            if (!users[key]) {
+              users[key] = val;
+            }
+          }
         }
+        localStorage.setItem('jurnal_wali_users', JSON.stringify(users));
+
         if (!localStorage.getItem('jurnal_wali_students')) {
           localStorage.setItem('jurnal_wali_students', JSON.stringify(DUMMY_STUDENTS_INITIAL));
         }
@@ -2037,7 +2007,6 @@
         </tr>
       `;
 
-      // 5 Aspek Pemantauan summary mapping
       const temuanBox = document.getElementById('lap-temuan-box');
       if (filteredLogs.length === 0) {
         temuanBox.innerText = "Belum ada poin pemantauan bimbingan terekam dalam rentang waktu terpilih.";
@@ -2058,7 +2027,6 @@
         temuanBox.innerText = text;
       }
 
-      // 3. Rekomendasi BK Box
       const bkBox = document.getElementById('lap-bk-box');
       const bkLogs = filteredLogs.filter(l => l.rekomendasi_bk);
       if (bkLogs.length === 0) {
@@ -2072,7 +2040,6 @@
         `).join('');
       }
 
-      // 4. Catatan Wali Kelas Box
       const wkBox = document.getElementById('lap-wk-box');
       const wkLogs = filteredLogs.filter(l => l.catatan_wali_kelas);
       if (wkLogs.length === 0) {
@@ -2112,14 +2079,12 @@
         </tr>
       `).join('');
 
-      // Populate Guru Wali dropdown selector
       const guruSelect = document.getElementById('admin-select-guru');
       const staticWaliUsers = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
       guruSelect.innerHTML = '<option value="">-- Pilih Guru Wali --</option>' + staticWaliUsers.map(([usr, data]) => `
         <option value="${usr}">${data.nama_guru}</option>
       `).join('');
 
-      // Populate unique classes dropdown selector
       const kelasSelect = document.getElementById('admin-select-kelas');
       const students = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
       const uniqueClasses = [...new Set(students.map(s => s.kelas_id))].filter(Boolean);
@@ -2136,7 +2101,6 @@
       const searchInput = document.getElementById('admin-student-search');
       const assignedList = document.getElementById('admin-assigned-students-list');
 
-      // Reset auto-complete options
       document.getElementById('admin-student-dropdown').classList.add('hidden');
       searchInput.value = '';
 
@@ -2148,7 +2112,6 @@
         searchInput.placeholder = "Pilih Guru & Kelas terlebih dahulu...";
       }
 
-      // Render assigned list for the chosen Guru Wali
       if (guruId) {
         let students = [];
         if (IS_PREVIEW) {
@@ -2393,7 +2356,6 @@
       return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
 
-    // CUSTOM MODALS & TOAST
     function showToast(message, type = "info") {
       const toast = document.getElementById('toast-notification');
       const icon = document.getElementById('toast-icon');
