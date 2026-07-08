@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jurnal Guru Wali - SMKS SANJAYA BAJAWA</title>
   
-  <!-- STREAMING_CHUNK: Configuring Tailwind CSS theme and styles... -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,7 +37,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Caveat:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- STREAMING_CHUNK: Defining core layout styles and print layout... -->
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -59,15 +57,11 @@
       border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
     }
 
-    /* Print Layout Configuration matching image_db1d41.png */
+    /* Print Layout Configuration */
     @media print {
-      @page {
-        size: A4 landscape;
-        margin: 1cm;
-      }
       body {
         background-color: #ffffff !important;
-        font-size: 9px;
+        font-size: 10px;
         color: #000000 !important;
       }
       .no-print {
@@ -79,18 +73,12 @@
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
       }
       .page-break {
         page-break-before: always;
       }
-      table, tr, th, td {
+      tr, th, td {
         border-color: #000000 !important;
-        color: #000000 !important;
-      }
-      input, select, textarea {
-        border: none !important;
-        background: transparent !important;
       }
     }
 
@@ -116,7 +104,6 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col overflow-x-hidden bg-slate-50">
 
-  <!-- STREAMING_CHUNK: Rendering app loading screens and portals... -->
   <div id="app-loading" class="fixed inset-0 z-50 bg-[#f8fafc] flex flex-col items-center justify-center space-y-4">
     <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-brand-600 border-r-4 border-brand-200"></div>
     <p class="text-brand-900 font-bold font-comfortaa tracking-wide text-sm">Memuat Aplikasi Jurnal...</p>
@@ -159,7 +146,6 @@
     </div>
   </div>
 
-  <!-- STREAMING_CHUNK: Rendering login panel with role authentication tabs... -->
   <div id="auth-screen" class="hidden fixed inset-0 z-40 bg-slate-100/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-3xl shadow-[0_25px_60px_rgba(37,99,235,0.12)] w-full max-w-md border border-slate-200 flex flex-col relative">
       <button onclick="backToWelcome()" class="absolute top-5 left-5 text-slate-500 hover:text-brand-600 transition flex items-center gap-1.5 text-xs font-bold">
@@ -218,7 +204,6 @@
     </div>
   </div>
 
-  <!-- STREAMING_CHUNK: Rendering app shell and layouts... -->
   <div id="app-shell" class="hidden flex flex-1 min-h-screen">
     
     <!-- DESKTOP SIDEBAR -->
@@ -283,7 +268,6 @@
     </nav>
   </div>
 
-  <!-- STREAMING_CHUNK: Defining templates for Guru and Admin Dashboards... -->
   <template id="tmpl-guru-dashboard">
     <div class="space-y-6">
       <div class="p-5 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-800 text-white shadow-xl relative overflow-hidden border border-brand-500/10">
@@ -344,7 +328,6 @@
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Creating layout for students management... -->
   <template id="tmpl-guru-siswa">
     <div class="space-y-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -391,7 +374,6 @@
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Creating journal and daily log templates... -->
   <template id="tmpl-guru-jurnal">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
@@ -423,6 +405,14 @@
                 <option value="Kelompok">Kelompok</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-600 mb-1">Kehadiran Siswa</label>
+            <select id="jurnal-kehadiran" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:outline-none font-semibold">
+              <option value="Hadir">Hadir (H)</option>
+              <option value="Tidak Hadir">Tidak Hadir (TH)</option>
+            </select>
           </div>
 
           <div>
@@ -484,7 +474,6 @@
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Designing printable student summary matching image_db1d41.png strictly... -->
   <template id="tmpl-guru-rekap-siswa">
     <div class="space-y-4">
       <div class="no-print bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-sm">
@@ -506,8 +495,7 @@
         </button>
       </div>
 
-      <!-- PRINT SHEET CONTAINER: PERFECT ALIGNMENT WITH image_db1d41.png -->
-      <div class="bg-white p-8 md:p-12 rounded-xl border border-slate-300 shadow-sm print-page text-slate-900" id="printable-rekap-sheet">
+      <div class="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm print-page text-slate-900" id="printable-rekap-sheet">
         
         <div id="rekap-empty-state" class="text-center py-12 text-slate-400 no-print">
           <i class="fa-solid fa-id-card text-4xl mb-3 block text-slate-300"></i>
@@ -517,69 +505,66 @@
         <div id="rekap-content-area" class="hidden space-y-6">
           
           <div class="text-center">
-            <h2 class="text-sm md:text-base font-extrabold uppercase tracking-widest font-sans text-center">
+            <h2 class="text-sm md:text-base font-extrabold uppercase tracking-wide underline font-sans text-center">
               JURNAL PERTEMUAN PESERTA DIDIK
             </h2>
           </div>
 
-          <!-- Metadata with Dotted Underlines matching image_db1d41.png -->
-          <div class="w-full text-xs space-y-2 bg-white pt-2 max-w-2xl">
-            <table class="w-full border-none">
-              <tr class="align-middle">
-                <td class="w-44 font-semibold pr-2 whitespace-nowrap py-1">Nama Peserta Didik</td>
-                <td class="w-4 text-center">:</td>
-                <td id="rekap-meta-nama" class="border-b border-dotted border-slate-500 text-slate-900 font-bold px-1 py-1"></td>
+          <div class="w-full max-w-xl text-xs space-y-1 bg-white pt-2">
+            <table class="w-full text-left font-semibold">
+              <tr>
+                <td class="w-36 py-1">Nama Peserta Didik</td>
+                <td class="w-4">:</td>
+                <td id="rekap-meta-nama" class="py-1 border-b border-dashed border-slate-400 text-slate-900">.......................................................................</td>
               </tr>
-              <tr class="align-middle">
-                <td class="w-44 font-semibold pr-2 whitespace-nowrap py-1">NISN</td>
-                <td class="w-4 text-center">:</td>
-                <td id="rekap-meta-nisn" class="border-b border-dotted border-slate-500 text-slate-900 font-bold px-1 py-1"></td>
+              <tr>
+                <td class="w-36 py-1">NISN</td>
+                <td>:</td>
+                <td id="rekap-meta-nisn" class="py-1 border-b border-dashed border-slate-400 text-slate-900">.......................................................................</td>
               </tr>
-              <tr class="align-middle">
-                <td class="w-44 font-semibold pr-2 whitespace-nowrap py-1">Kelas</td>
-                <td class="w-4 text-center">:</td>
-                <td id="rekap-meta-kelas" class="border-b border-dotted border-slate-500 text-slate-900 font-bold px-1 py-1"></td>
+              <tr>
+                <td class="w-36 py-1">Kelas</td>
+                <td>:</td>
+                <td id="rekap-meta-kelas" class="py-1 border-b border-dashed border-slate-400 text-slate-900">.......................................................................</td>
               </tr>
-              <tr class="align-middle">
-                <td class="w-44 font-semibold pr-2 whitespace-nowrap py-1">Kontak Wali Murid</td>
-                <td class="w-4 text-center">:</td>
-                <td id="rekap-meta-kontak" class="border-b border-dotted border-slate-500 text-slate-900 font-bold px-1 py-1"></td>
+              <tr>
+                <td class="w-36 py-1">Kontak Wali Murid</td>
+                <td>:</td>
+                <td id="rekap-meta-kontak" class="py-1 border-b border-dashed border-slate-400 text-slate-900">.......................................................................</td>
               </tr>
             </table>
           </div>
 
-          <!-- Nested Table with exactly same structure and solid borders -->
-          <div class="overflow-x-auto pt-3">
-            <table class="w-full border-collapse border-2 border-slate-950 text-[10px] text-left">
+          <div class="overflow-x-auto pt-2">
+            <table class="w-full border-collapse border border-slate-900 text-[10px] text-left">
               <thead>
-                <tr class="bg-slate-100 font-bold text-center text-slate-950 border-b-2 border-slate-950">
-                  <th class="border border-slate-950 p-2 w-8 text-center" rowspan="2">No.</th>
-                  <th class="border border-slate-950 p-2 w-24 text-center" rowspan="2">Tanggal Pertemuan</th>
-                  <th class="border border-slate-950 p-2 w-52" rowspan="2">Topik atau Masalah yang Dibahas</th>
-                  <th class="border border-slate-950 p-1.5 text-center" colspan="5">Aspek Pemantauan</th>
-                  <th class="border border-slate-950 p-2 w-44" rowspan="2">Tindak Lanjut</th>
-                  <th class="border border-slate-950 p-2 w-32" rowspan="2">Keterangan</th>
+                <tr class="bg-slate-100 font-bold text-center text-slate-900">
+                  <th class="border border-slate-900 p-2 w-8" rowspan="2">No.</th>
+                  <th class="border border-slate-900 p-2 w-20" rowspan="2">Tanggal Pertemuan</th>
+                  <th class="border border-slate-900 p-2 w-44" rowspan="2">Topik atau Masalah yang Dibahas</th>
+                  <th class="border border-slate-900 p-1.5" colspan="5">Aspek Pemantauan</th>
+                  <th class="border border-slate-900 p-2 w-32" rowspan="2">Tindak Lanjut</th>
+                  <th class="border border-slate-900 p-2 w-28" rowspan="2">Keterangan</th>
                 </tr>
-                <tr class="bg-slate-50 font-bold text-center text-[8.5px] text-slate-900 border-b-2 border-slate-950">
-                  <th class="border border-slate-950 p-1 w-20">Akademik</th>
-                  <th class="border border-slate-950 p-1 w-20">Karakter</th>
-                  <th class="border border-slate-950 p-1 w-20">Sosial Emosional</th>
-                  <th class="border border-slate-950 p-1 w-20">Kedisiplinan</th>
-                  <th class="border border-slate-950 p-1 w-20">Bakat dan Minat</th>
+                <tr class="bg-slate-50 font-bold text-center text-[8px] text-slate-800">
+                  <th class="border border-slate-900 p-1 w-16">Akademik</th>
+                  <th class="border border-slate-900 p-1 w-16">Karakter</th>
+                  <th class="border border-slate-900 p-1 w-16">Sosial Emosional</th>
+                  <th class="border border-slate-900 p-1 w-16">Kedisiplinan</th>
+                  <th class="border border-slate-900 p-1 w-16">Bakat dan Minat</th>
                 </tr>
               </thead>
-              <tbody id="rekap-table-body" class="divide-y divide-slate-950">
-                <!-- Rendered rows with solid borders -->
+              <tbody id="rekap-table-body" class="divide-y divide-slate-900">
+                <!-- Rendered rows -->
               </tbody>
             </table>
           </div>
 
-          <!-- Printable Signature Block -->
-          <div class="flex justify-between text-xs mt-12 px-4 pt-4">
+          <div class="flex justify-between text-xs mt-10 px-4 pt-4">
             <div class="text-center w-64 space-y-12">
               <div>
                 <p class="font-bold">Mengetahui,</p>
-                <p class="font-bold text-slate-900" id="rekap-left-title">Wali Kelas / Wali Pendamping,</p>
+                <p class="font-bold text-slate-900">Guru Bimbingan Konseling (BK),</p>
               </div>
               <div>
                 <p class="font-extrabold underline text-slate-950" id="rekap-sign-left">......................................................</p>
@@ -590,7 +575,7 @@
             <div class="text-center w-64 space-y-12">
               <div>
                 <p>Bajawa, <span id="rekap-sign-date">-</span></p>
-                <p class="font-bold text-slate-900">Guru Bimbingan Konseling (BK),</p>
+                <p class="font-bold text-slate-900" id="rekap-left-title">Wali Kelas / Wali Pendamping,</p>
               </div>
               <div>
                 <p class="font-extrabold underline text-slate-950" id="rekap-sign-right">......................................................</p>
@@ -604,7 +589,6 @@
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Designing formal semester reports templates... -->
   <template id="tmpl-guru-laporan">
     <div class="space-y-4">
       <div class="no-print bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -719,19 +703,7 @@
           </div>
         </div>
 
-        <!-- TANDA TANGAN SEJAJAR KEPALA SEKOLAH DAN GURU WALI -->
         <div class="flex justify-between text-xs mt-10 px-4">
-          <div class="text-center w-64 space-y-12">
-            <div>
-              <p class="font-bold">Mengetahui,</p>
-              <p class="font-bold">Kepala Sekolah SMKS Sanjaya,</p>
-            </div>
-            <div>
-              <p class="font-extrabold underline text-slate-900">Elisabeth Nena, ST., M.Kom</p>
-              <p class="text-[10px] text-slate-500">NIP. -</p>
-            </div>
-          </div>
-
           <div class="text-center w-64 space-y-12">
             <div>
               <p>Bajawa, <span id="lap-sign-date">-</span></p>
@@ -742,12 +714,23 @@
               <p class="text-[10px] text-slate-500" id="lap-sign-nip">-</p>
             </div>
           </div>
+
+          <div class="text-center w-64 space-y-12">
+            <div>
+              <p class="invisible">Spacer</p>
+              <p class="font-bold">Mengetahui,</p>
+              <p class="font-bold">Kepala Sekolah SMKS Sanjaya,</p>
+            </div>
+            <div>
+              <p class="font-extrabold underline text-slate-900">Elisabeth Nena, ST., M.Kom</p>
+              <p class="text-[10px] text-slate-500">NIP. -</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Adding SOP Standard Operational Procedure template... -->
   <template id="tmpl-guru-sop">
     <div class="max-w-4xl mx-auto space-y-8 no-print">
       <div class="flex justify-end">
@@ -757,18 +740,177 @@
       </div>
     </div>
 
-    <div class="space-y-8 max-w-4xl mx-auto mt-4 text-xs text-slate-800 leading-relaxed">
-      <div class="bg-white p-8 md:p-12 rounded-xl border border-slate-200 shadow-sm print-page">
-        <div class="text-center border-b-4 border-double border-slate-800 pb-4 mb-6">
-          <h3 class="text-base font-extrabold text-slate-900 tracking-wide font-comfortaa uppercase">STANDAR OPERASIONAL PROSEDUR (SOP)</h3>
-          <h4 class="text-sm font-bold text-slate-800 uppercase">GURU WALI</h4>
+    <div class="space-y-8 max-w-4xl mx-auto mt-4 text-xs text-slate-900 leading-relaxed font-sans print-page" style="background-color: #f3e8e0;">
+      
+      <div class="p-10 md:p-14 shadow-sm relative overflow-hidden" style="background-color: #f4ece4;">
+        
+        <!-- Ornaments mimicking the image background -->
+        <div class="absolute top-0 left-0 w-32 h-32 rounded-br-full opacity-50 pointer-events-none" style="background-color: #d1bfae;"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-48 rounded-tr-full opacity-60 pointer-events-none" style="background-color: #a8815c;"></div>
+        <div class="absolute top-10 right-0 w-20 h-40 rounded-l-full opacity-60 pointer-events-none" style="background-color: #a8815c;"></div>
+
+        <div class="relative z-10 space-y-5">
+          <div class="text-center pb-4 mb-6">
+            <h3 class="text-base font-extrabold tracking-wide uppercase">STANDAR OPERASIONAL PROSEDUR (SOP)</h3>
+            <h4 class="text-sm font-bold uppercase mt-1">GURU WALI</h4>
+          </div>
+
+          <div class="w-full max-w-sm mb-6 font-semibold">
+            <table class="w-full text-left">
+              <tr><td class="w-36 py-1">Satuan Pendidikan</td><td class="w-4">:</td><td>SMKS SANJAYA</td></tr>
+              <tr><td class="w-36 py-1">Jenjang</td><td>:</td><td>SMK</td></tr>
+              <tr><td class="w-36 py-1">Tahun Ajaran</td><td>:</td><td>2025/2026</td></tr>
+            </table>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <h4 class="font-bold text-sm mb-2">A. Dasar Hukum</h4>
+              <ol class="list-decimal list-outside ml-5 space-y-1.5 text-justify font-medium">
+                <li>Permendiknas Nomor 11 Tahun 2025 tentang Pemenuhan Beban Kerja Guru</li>
+                <li>Pasal 9 ayat (1)–(5): Penguasaan dan ruang lingkup tugas Guru Wali</li>
+                <li>Pasal 14: Efektivitas tugas Guru Wali setara 2 JP per minggu</li>
+                <li>Pasal 17 dan 18: Penetapan, pelaksanaan, dan penghitungan beban kerja</li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">B. Pengertian</h4>
+              <p class="text-justify font-medium">Guru Wali adalah guru mata pelajaran yang diberi tugas mendampingi perkembangan akademik, karakter, keterampilan, dan kompetensi murid dari saat masuk hingga lulus pada satuan pendidikan yang sama.</p>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">C. Tujuan</h4>
+              <p class="font-medium mb-1">Adapun tujuan guru wali yaitu:</p>
+              <ol class="list-decimal list-outside ml-5 space-y-1.5 text-justify font-medium">
+                <li>Menjamin pelaksanaan pendampingan murid secara menyeluruh dan berkesinambungan.</li>
+                <li>Menumbuhkan keterlibatan guru dalam pendidikan karakter dan pengembangan kompetensi murid.</li>
+                <li>Mendukung pelaksanaan sistematis terhadap pertumbuhan akademik dan non-akademik peserta didik.</li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">D. Ruang Lingkup Tugas</h4>
+              <p class="font-medium mb-1">Berdasarkan Pasal 9 ayat (2), Guru Wali melaksanakan tugas sebagai berikut:</p>
+              <ol class="list-decimal list-outside ml-5 space-y-2 text-justify font-medium">
+                <li>
+                  <strong>Pendampingan Akademik</strong><br>
+                  Mendampingi murid dalam perencanaan dan refleksi belajar.
+                </li>
+                <li>
+                  <strong>Pengembangan Kompetensi dan Keterampilan</strong><br>
+                  Mendampingi murid dalam keterampilan belajar dan soft skill.
+                </li>
+                <li>
+                  <strong>Pembinaan Karakter</strong><br>
+                  Membina nilai-nilai kedisiplinan, kejujuran, tanggung jawab, dan empati.
+                </li>
+                <li>
+                  <strong>Pendampingan Berkegiatan</strong><br>
+                  Mendampingi kegiatan murid di luar akademik hingga akhir masa belajar.
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">E. Prosedur Pelaksanaan</h4>
+              <ol class="list-decimal list-outside ml-5 space-y-3 font-medium">
+                <li>
+                  <strong>Penunjukan Guru Wali</strong>
+                  <ol class="list-[lower-alpha] list-outside ml-5 mt-1 space-y-1">
+                    <li>Dilakukan oleh Kepala Sekolah (Pasal 18 ayat 1).</li>
+                    <li>Berdasarkan rasio jumlah murid dengan jumlah guru mata pelajaran (Pasal 18 ayat 2).</li>
+                  </ol>
+                </li>
+                <li class="pt-2 page-break">
+                  <strong>Pelaksanaan Tugas</strong>
+                  <div class="mt-3 overflow-hidden border border-black">
+                    <table class="w-full border-collapse border border-black text-left">
+                      <thead>
+                        <tr class="bg-transparent border-b border-black text-center">
+                          <th class="border-r border-black p-2 font-bold w-8">No</th>
+                          <th class="border-r border-black p-2 font-bold">Kegiatan</th>
+                          <th class="border-r border-black p-2 font-bold">Penjelasan</th>
+                          <th class="p-2 font-bold w-32">Waktu Pelaksanaan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="border-b border-black">
+                          <td class="border-r border-black p-2 text-center">1</td>
+                          <td class="border-r border-black p-2">Identifikasi murid dampingan</td>
+                          <td class="border-r border-black p-2">Memahami latar belakang, potensi, dan tantangan murid</td>
+                          <td class="p-2">Awal tahun ajaran</td>
+                        </tr>
+                        <tr class="border-b border-black">
+                          <td class="border-r border-black p-2 text-center">2</td>
+                          <td class="border-r border-black p-2">Perencanaan pendampingan</td>
+                          <td class="border-r border-black p-2">Disesuaikan dengan kebutuhan murid</td>
+                          <td class="p-2">Per semester</td>
+                        </tr>
+                        <tr class="border-b border-black">
+                          <td class="border-r border-black p-2 text-center">3</td>
+                          <td class="border-r border-black p-2">Pencatatan perkembangan akademik</td>
+                          <td class="border-r border-black p-2">Berdasarkan nilai dan ketercapaian kompetensi</td>
+                          <td class="p-2">Per semester</td>
+                        </tr>
+                        <tr class="border-b border-black">
+                          <td class="border-r border-black p-2 text-center">4</td>
+                          <td class="border-r border-black p-2">Kolaborasi dengan guru BK</td>
+                          <td class="border-r border-black p-2">Untuk tindak lanjut masalah murid</td>
+                          <td class="p-2">Sesuai kebutuhan</td>
+                        </tr>
+                        <tr class="border-b border-black">
+                          <td class="border-r border-black p-2 text-center">5</td>
+                          <td class="border-r border-black p-2">Pemantauan perkembangan karakter</td>
+                          <td class="border-r border-black p-2">Observasi perilaku dan pembiasaan</td>
+                          <td class="p-2">Berkala</td>
+                        </tr>
+                        <tr>
+                          <td class="border-r border-black p-2 text-center">6</td>
+                          <td class="border-r border-black p-2">Dokumentasi dan refleksi</td>
+                          <td class="border-r border-black p-2">Catatan kemajuan/hambatan, serta rencana tindak lanjut</td>
+                          <td class="p-2">Berkelanjutan</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-6">F. Evaluasi dan Pelaporan</h4>
+              <ol class="list-decimal list-outside ml-5 space-y-2 font-medium">
+                <li>
+                  Guru Wali menyusun laporan singkat setiap semester berisi:
+                  <ol class="list-[lower-alpha] list-outside ml-5 mt-1 space-y-1">
+                    <li>Rekap perkembangan murid.</li>
+                    <li>Catatan pendampingan.</li>
+                    <li>Rekomendasi tindak lanjut.</li>
+                  </ol>
+                </li>
+                <li>Laporan disampaikan ke Wali Kelas/Kepala Sekolah bidang Kesiswaan atau Kurikulum.</li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">G. Ekuivalensi Beban Kerja</h4>
+              <ol class="list-decimal list-outside ml-5 space-y-1 font-medium">
+                <li>Tugas Guru Wali setara dengan 2 jam Tatap Muka per minggu.</li>
+                <li>(Pasal 14 dan Lampiran Permendiknas Nomor 11 Tahun 2025).</li>
+              </ol>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-sm mb-2 mt-4">H. Penutup</h4>
+              <p class="text-justify font-medium">SOP ini menjadi acuan pelaksanaan tugas Guru Wali untuk memastikan pendampingan murid berjalan sistematis, profesional, dan berdampak pada perkembangan peserta didik secara utuh.</p>
+            </div>
+          </div>
         </div>
-        <p class="text-slate-600 text-justify">Dasar Hukum: Permendiknas No. 11 Tahun 2025 tentang Pemenuhan Beban Kerja Guru. Tugas Guru Wali diakui setara dengan 2 JP Tatap Muka per minggu secara sah sesuai regulasi kementerian.</p>
       </div>
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Constructing layout for system administrators... -->
   <template id="tmpl-admin-dashboard">
     <div class="space-y-6">
       <div class="p-5 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-800 text-white shadow-xl border border-brand-500/10">
@@ -846,8 +988,7 @@
     </div>
   </template>
 
-  <!-- STREAMING_CHUNK: Designing modals for admin editing and controls... -->
-  <!-- MODAL: ADD/EDIT TEACHERS -->
+  <!-- MODALS -->
   <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 text-slate-800">
     <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 text-xs">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
@@ -890,7 +1031,6 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT STUDENTS (DATALIST FOR CLASS) -->
   <div id="student-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 text-slate-800">
     <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 text-xs">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
@@ -947,8 +1087,6 @@
     </div>
   </div>
 
-  <!-- STREAMING_CHUNK: Setting up modals for BK and Walikelas evaluations... -->
-  <!-- MODAL: EVALUATION (BK & WALIKELAS) -->
   <div id="evaluation-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 text-slate-800">
     <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 text-xs">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
@@ -978,7 +1116,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CLOUD CONFIGURATION -->
   <div id="cloud-config-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 text-slate-800">
     <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-200 text-xs">
       <div class="flex items-center justify-between border-b border-slate-150 pb-3 mb-4">
@@ -1008,13 +1145,11 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATIONS -->
   <div id="toast-notification" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs">
     <span id="toast-icon" class="text-base"></span>
     <span id="toast-text" class="font-medium font-comfortaa">Notification</span>
   </div>
 
-  <!-- CONFIRMATION MODAL -->
   <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl border border-slate-200 text-center space-y-4">
       <div class="w-11 h-11 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-lg border border-rose-100">
@@ -1031,7 +1166,6 @@
     </div>
   </div>
 
-  <!-- STREAMING_CHUNK: Loading Firebase Core scripts dynamically... -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -1040,11 +1174,10 @@
     window.fBase = { initializeApp, getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, collection, query, where, writeBatch, getAuth, signInWithEmailAndPassword, signOut };
   </script>
 
-  <!-- STREAMING_CHUNK: Initializing state and database variables... -->
   <script>
     let IS_PREVIEW = false;
     let HAS_GAS = false;
-    let gasUrl = "https://script.google.com/macros/s/AKfycbyHdboi5BE55iN7Q960BIJlGPajlSm0D9zR2ijF9NqfCFdYy8kYLY5__10KH3SRRXal0A/exec";
+    let gasUrl = "https://script.google.com/macros/s/AKfycbwGWUVuhBh_W5YSnnPq15-KJxv2NW5lylZnQDW6PwqhCxAKFxa_nxg_mv4N_bSZsBrCFw/exec";
     
     let firebaseConfig = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
@@ -1153,7 +1286,6 @@
       }
     }
 
-    // STREAMING_CHUNK: Creating actions to pull and sync data...
     async function fetchAllStudents() {
       let students = [];
       if (IS_PREVIEW) {
@@ -1261,7 +1393,6 @@
       }
     }
 
-    // STREAMING_CHUNK: Pull and push data logic to Google Sheets...
     async function pullStudentsFromGoogleSheets() {
       if (!HAS_GAS || !gasUrl) {
         showToast("Atur URL GAS Google Sheets Anda terlebih dahulu di menu Setup Cloud!", "error");
@@ -1417,7 +1548,6 @@
       showWelcomeScreen();
     }
 
-    // STREAMING_CHUNK: Managing tab validation and credential roles...
     let activeAuthTab = 'guru';
     function switchAuthTab(tab) {
       activeAuthTab = tab;
@@ -1518,7 +1648,6 @@
       navigate('dashboard');
     }
 
-    // STREAMING_CHUNK: Structuring navigation menus based on roles...
     function buildNavigation() {
       const desktopNav = document.getElementById('desktop-nav');
       const mobileNav = document.querySelector('.bottom-nav-mobile');
@@ -1627,7 +1756,6 @@
       }
     }
 
-    // STREAMING_CHUNK: Loading dashboards statistics and elements...
     async function renderGuruDashboard() {
       document.querySelectorAll('.teacher-name').forEach(el => el.innerText = currentUser.nama_guru);
       
@@ -1725,7 +1853,6 @@
       });
     }
 
-    // STREAMING_CHUNK: Filtering students table roles and actions...
     async function renderSiswaWali() {
       const rowsArea = document.getElementById('student-table-rows');
       rowsArea.innerHTML = `<tr><td colspan="8" class="text-center p-4">Memuat data...</td></tr>`;
@@ -1804,7 +1931,6 @@
       }).join('');
     }
 
-    // STREAMING_CHUNK: Managing student editor modals and lists...
     async function openAddStudentModal() {
       document.getElementById('student-modal-title').innerText = "Tambah Siswa Baru";
       document.getElementById('modal-student-id').value = "";
@@ -1897,7 +2023,6 @@
       });
     }
 
-    // STREAMING_CHUNK: Structuring journals search and creation...
     let searchActiveStudents = [];
     async function initJurnalForm() {
       document.getElementById('jurnal-tanggal').value = new Date().toISOString().split('T')[0];
@@ -2003,7 +2128,6 @@
       document.getElementById('jurnal-siswa-dropdown').classList.add('hidden');
     }
 
-    // STREAMING_CHUNK: Rendering list of journals and actions...
     function renderJurnalLogsList(logs) {
       const listContainer = document.getElementById('jurnal-logs-list');
       if (logs.length === 0) {
@@ -2080,7 +2204,6 @@
       }).join('');
     }
 
-    // STREAMING_CHUNK: Managing evaluation forms and modals...
     let activeEvalType = 'bk';
     function openEvaluationModal(journalId, type) {
       activeEvalType = type;
@@ -2101,7 +2224,7 @@
           <div class="space-y-3.5">
             <div>
               <label class="block font-bold text-slate-600 mb-1">Catatan Rekomendasi BK</label>
-              <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="Tulis bimbingan klinis BK...">${match.rekomendasi_bk || ""}</textarea>
+              <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="Tulis analisis bimbingan atau intervensi klinis BK...">${match.rekomendasi_bk || ""}</textarea>
             </div>
             <div>
               <label class="block font-bold text-slate-600 mb-1">Tanggal Rekomendasi BK</label>
@@ -2114,7 +2237,7 @@
         container.innerHTML = `
           <div>
             <label class="block font-bold text-slate-600 mb-1">Catatan Koordinasi Wali Kelas</label>
-            <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="Tulis koordinasi belajar...">${match.catatan_wali_kelas || ""}</textarea>
+            <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="Tulis evaluasi koordinasi belajar siswa...">${match.catatan_wali_kelas || ""}</textarea>
           </div>
         `;
       }
@@ -2159,11 +2282,11 @@
             upObj.catatan_wali_kelas = val;
           }
           await window.fBase.updateDoc(window.fBase.doc(db, "journals", id), upObj);
-          showToast("Evaluasi diunggah.", "success");
+          showToast("Evaluasi diunggah ke cloud.", "success");
           closeEvalModal();
           initJurnalForm();
         } catch (e) {
-          showToast("Gagal mengunggah.", "error");
+          showToast("Gagal mengunggah evaluasi.", "error");
         }
       }
 
@@ -2187,6 +2310,7 @@
         siswa_id: sId,
         tanggal: document.getElementById('jurnal-tanggal').value,
         format_pertemuan: document.getElementById('jurnal-format').value,
+        kehadiran: document.getElementById('jurnal-kehadiran').value,
         topik_bahasan: document.getElementById('jurnal-topik').value,
         aspek_akademik: document.getElementById('aspek-akademik').value,
         aspek_karakter: document.getElementById('aspek-karakter').value,
@@ -2223,6 +2347,7 @@
 
       document.getElementById('jurnal-siswa-search').value = '';
       document.getElementById('jurnal-siswa-id').value = '';
+      document.getElementById('jurnal-kehadiran').value = 'Hadir';
       document.getElementById('jurnal-topik').value = '';
       document.getElementById('aspek-akademik').value = '';
       document.getElementById('aspek-karakter').value = '';
@@ -2244,6 +2369,7 @@
         nama_siswa: getStudentName(logData.siswa_id),
         tanggal: logData.tanggal,
         format_pertemuan: logData.format_pertemuan,
+        kehadiran: logData.kehadiran || "Hadir",
         topik_bahasan: logData.topik_bahasan,
         rencana_tindak_lanjut: logData.rencana_tindak_lanjut,
         aspek_akademik: logData.aspek_akademik || "",
@@ -2293,7 +2419,7 @@
       });
     }
 
-    // STREAMING_CHUNK: Managing printable reports initialization...
+    // JS METHODS FOR CETAK REKAP SISWA VIEW
     async function initRekapSiswaView() {
       searchActiveStudents = [];
       if (IS_PREVIEW) {
@@ -2348,7 +2474,6 @@
       dropdown.classList.remove('hidden');
     }
 
-    // STREAMING_CHUNK: Formatting printable pages layouts and metadata...
     async function selectSiswaForRekap(id, name) {
       document.getElementById('rekap-siswa-id').value = id;
       document.getElementById('rekap-siswa-search').value = name;
@@ -2357,7 +2482,7 @@
       const student = getStudentObject(id);
       if (!student) return;
 
-      // Fill Metadata with identical layout and visual spacing
+      // Fill Metadata
       document.getElementById('rekap-meta-nama').innerText = student.nama_siswa;
       document.getElementById('rekap-meta-nisn').innerText = student.nisn || "-";
       document.getElementById('rekap-meta-kelas').innerText = student.kelas_id || "-";
@@ -2387,53 +2512,57 @@
       if (filteredLogs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" class="border border-slate-950 p-4 text-center text-slate-400 font-semibold italic">
+            <td colspan="10" class="border border-slate-900 p-4 text-center text-slate-400 font-semibold italic">
               Belum ada record jurnal pemantauan harian yang tercatat untuk siswa ini.
             </td>
           </tr>
         `;
       } else {
         tbody.innerHTML = filteredLogs.map((log, idx) => `
-          <tr class="text-slate-950 font-semibold border-b border-slate-950 text-[9.5px]">
-            <td class="border border-slate-950 p-2 text-center">${idx + 1}</td>
-            <td class="border border-slate-950 p-2 text-center whitespace-nowrap">${formatIndonesiaDate(log.tanggal)}</td>
-            <td class="border border-slate-950 p-2 leading-relaxed">${log.topik_bahasan || '-'}</td>
-            <td class="border border-slate-950 p-1.5 text-center leading-normal">${log.aspek_akademik || '-'}</td>
-            <td class="border border-slate-950 p-1.5 text-center leading-normal">${log.aspek_karakter || '-'}</td>
-            <td class="border border-slate-950 p-1.5 text-center leading-normal">${log.aspek_sosio || '-'}</td>
-            <td class="border border-slate-950 p-1.5 text-center leading-normal">${log.aspek_disiplin || '-'}</td>
-            <td class="border border-slate-950 p-1.5 text-center leading-normal">${log.aspek_bakat || '-'}</td>
-            <td class="border border-slate-950 p-2 leading-relaxed">${log.rencana_tindak_lanjut || '-'}</td>
-            <td class="border border-slate-950 p-2 leading-relaxed">${log.keterangan || '-'}</td>
+          <tr class="text-slate-950 font-medium border-b border-slate-900">
+            <td class="border border-slate-900 p-2 text-center">${idx + 1}</td>
+            <td class="border border-slate-900 p-2 text-center whitespace-nowrap">${formatIndonesiaDate(log.tanggal)}</td>
+            <td class="border border-slate-900 p-2">
+              ${log.topik_bahasan || '-'}
+              ${log.kehadiran === 'Tidak Hadir' ? '<span class="text-[9px] text-rose-600 font-bold ml-1 border border-rose-200 px-1 rounded bg-rose-50">(TIDAK HADIR)</span>' : ''}
+            </td>
+            <td class="border border-slate-900 p-1.5 text-center">${log.aspek_akademik || '-'}</td>
+            <td class="border border-slate-900 p-1.5 text-center">${log.aspek_karakter || '-'}</td>
+            <td class="border border-slate-900 p-1.5 text-center">${log.aspek_sosio || '-'}</td>
+            <td class="border border-slate-900 p-1.5 text-center">${log.aspek_disiplin || '-'}</td>
+            <td class="border border-slate-900 p-1.5 text-center">${log.aspek_bakat || '-'}</td>
+            <td class="border border-slate-900 p-2">${log.rencana_tindak_lanjut || '-'}</td>
+            <td class="border border-slate-900 p-2">${log.keterangan || '-'}</td>
           </tr>
         `).join('');
       }
 
-      // Dynamic signatures
+      const users = await fetchAllUsers();
+      const bkUser = Object.values(users).find(u => u.role === 'guru_bk');
+      
+      // LEFT = Guru BK (Swap logic)
       const leftSign = document.getElementById('rekap-sign-left');
       const leftSignNip = document.getElementById('rekap-sign-left-nip');
-      const leftTitle = document.getElementById('rekap-left-title');
-
-      const users = await fetchAllUsers();
-      if (student.guru_wali_id && users[student.guru_wali_id]) {
-        const gu = users[student.guru_wali_id];
-        leftTitle.innerText = "Guru Wali Pendamping,";
-        leftSign.innerText = gu.nama_guru;
-        leftSignNip.innerText = gu.nip ? "NIP. " + gu.nip : "NIP. -";
+      if (bkUser) {
+        leftSign.innerText = bkUser.nama_guru;
+        leftSignNip.innerText = bkUser.nip ? "NIP. " + bkUser.nip : "NIP. -";
       } else {
-        leftTitle.innerText = "Wali Kelas,";
         leftSign.innerText = "......................................................";
         leftSignNip.innerText = "NIP. -";
       }
 
-      // BK signatures automatic detection
-      const bkUser = Object.values(users).find(u => u.role === 'guru_bk');
+      // RIGHT = Wali Kelas/Wali Pendamping (Swap logic)
+      const rightTitle = document.getElementById('rekap-left-title'); // using same ID for text element swapping
       const rightSign = document.getElementById('rekap-sign-right');
       const rightSignNip = document.getElementById('rekap-sign-right-nip');
-      if (bkUser) {
-        rightSign.innerText = bkUser.nama_guru;
-        rightSignNip.innerText = bkUser.nip ? "NIP. " + bkUser.nip : "NIP. -";
+
+      if (student.guru_wali_id && users[student.guru_wali_id]) {
+        const gu = users[student.guru_wali_id];
+        rightTitle.innerText = "Guru Wali Pendamping,";
+        rightSign.innerText = gu.nama_guru;
+        rightSignNip.innerText = gu.nip ? "NIP. " + gu.nip : "NIP. -";
       } else {
+        rightTitle.innerText = "Wali Kelas,";
         rightSign.innerText = "......................................................";
         rightSignNip.innerText = "NIP. -";
       }
@@ -2442,7 +2571,6 @@
       document.getElementById('rekap-content-area').classList.remove('hidden');
     }
 
-    // STREAMING_CHUNK: Compiling semester reports variables...
     async function generateReport() {
       document.getElementById('lap-disp-guru').innerText = currentUser.nama_guru;
       
@@ -2531,7 +2659,9 @@
           formatStr = `${countIndividu} Ind / ${countKelompok} Kel`;
         }
 
-        let attendanceRate = blnLogs.length > 0 ? "100%" : "0%";
+        const countHadir = blnLogs.filter(j => j.kehadiran === 'Hadir' || !j.kehadiran).length; // Handle data lama yg gaada key 'kehadiran'
+        let attendanceRate = blnLogs.length > 0 ? Math.round((countHadir / blnLogs.length) * 100) + "%" : "-";
+        let textStyleRate = (blnLogs.length > 0 && (countHadir / blnLogs.length) < 1) ? 'text-rose-600 font-extrabold' : 'text-brand-600 font-bold';
 
         return `
           <tr class="hover:bg-slate-50 transition text-slate-800 border-b border-slate-300">
@@ -2539,7 +2669,7 @@
             <td class="border border-slate-300 p-2 font-semibold text-slate-800">${bln.n}</td>
             <td class="border border-slate-300 p-2 font-bold">${blnLogs.length} Kali</td>
             <td class="border border-slate-300 p-2">${formatStr}</td>
-            <td class="border border-slate-300 p-2 font-bold text-brand-600">${attendanceRate}</td>
+            <td class="border border-slate-300 p-2 ${textStyleRate}">${attendanceRate}</td>
           </tr>
         `;
       }).join('') + `
@@ -2597,7 +2727,6 @@
       }
     }
 
-    // STREAMING_CHUNK: Compiling administrators dashboard actions...
     async function renderAdminDashboard() {
       const users = await fetchAllUsers();
       const tBody = document.getElementById('admin-wali-rows');
@@ -2739,7 +2868,6 @@
       }
     }
 
-    // STREAMING_CHUNK: Managing teacher accounts modals...
     function openAddWaliModal() {
       document.getElementById('modal-title').innerText = "Tambah Pendidik / Staf";
       document.getElementById('modal-wali-id').value = "";
@@ -2815,7 +2943,6 @@
       });
     }
 
-    // STREAMING_CHUNK: Managing global functions and notification dialogs...
     function getStudentName(id) {
       const match = getStudentObject(id);
       return match ? match.nama_siswa : "Murid tidak terdaftar";
