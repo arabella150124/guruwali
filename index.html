@@ -1203,6 +1203,7 @@
     let currentRole = 'guest'; 
     let activeView = 'dashboard';
     let activeAuthTab = 'guru';
+    let searchActiveStudents = [];
 
     let state = {
       users: {},
@@ -1252,7 +1253,8 @@
         await autoSetupDatabase();
         checkSession();
       } catch (err) {
-        console.error("Gagal memuat aplikasi: ", err);
+        console.error("Gagal memuat aplikasi, memaksa ke Welcome Screen: ", err);
+        showWelcomeScreen();
       } finally {
         const loader = document.getElementById('app-loading');
         if (loader) {
@@ -1534,18 +1536,29 @@
     }
 
     function checkSession() {
-      const session = localStorage.getItem('jurnal_session');
-      if (session) {
-        const parsed = JSON.parse(session);
-        currentUser = parsed.user;
-        currentRole = parsed.role;
-        showAppShell();
-      } else {
+      try {
+        const session = localStorage.getItem('jurnal_session');
+        if (session) {
+          const parsed = JSON.parse(session);
+          if (parsed && parsed.user && parsed.user.nama_guru) {
+            currentUser = parsed.user;
+            currentRole = parsed.role || 'guest';
+            showAppShell();
+          } else {
+            localStorage.removeItem('jurnal_session');
+            showWelcomeScreen();
+          }
+        } else {
+          showWelcomeScreen();
+        }
+      } catch (e) {
+        console.error("Session check error, resetting:", e);
+        localStorage.removeItem('jurnal_session');
         showWelcomeScreen();
       }
     }
 
-    /* FUNGSI NAVIGASI LAYAR YANG SEBELUMNYA HILANG */
+    /* FUNGSI NAVIGASI LAYAR */
     function showWelcomeScreen() {
       document.getElementById('welcome-screen').classList.remove('hidden');
       document.getElementById('auth-screen').classList.add('hidden');
@@ -1561,7 +1574,7 @@
       showWelcomeScreen();
     }
 
-    /* FUNGSI MODAL PENGATURAN CLOUD YANG SEBELUMNYA HILANG */
+    /* FUNGSI MODAL PENGATURAN CLOUD */
     function openCloudConfigModal() {
       document.getElementById('config-gas-url').value = gasUrl || "";
       const savedFb = localStorage.getItem('fb_config') || JSON.stringify(firebaseConfig);
@@ -1694,17 +1707,24 @@
     }
 
     function showAppShell() {
+      if (!currentUser || !currentUser.nama_guru) {
+        localStorage.removeItem('jurnal_session');
+        showWelcomeScreen();
+        return;
+      }
+
       document.getElementById('welcome-screen').classList.add('hidden');
       document.getElementById('auth-screen').classList.add('hidden');
       document.getElementById('app-shell').classList.remove('hidden');
 
-      document.getElementById('user-avatar').innerText = currentUser.nama_guru.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      const initials = currentUser.nama_guru.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      document.getElementById('user-avatar').innerText = initials || "GW";
       document.getElementById('user-display-name').innerText = currentUser.nama_guru;
       
       let roleLabel = 'Guru Wali';
       if (currentRole === 'admin') roleLabel = 'Administrator';
       if (currentRole === 'guru_bk') roleLabel = 'Guru BK (Counselor)';
-      if (currentRole === 'wali_kelas') roleLabel = `Wali Kelas ${currentUser.kelas_diampu}`;
+      if (currentRole === 'wali_kelas') roleLabel = `Wali Kelas ${currentUser.kelas_diampu || ''}`;
       document.getElementById('user-display-role').innerText = roleLabel;
 
       const cloudBtn = document.getElementById('btn-sync-cloud-settings');
@@ -1751,19 +1771,23 @@
         ];
       }
 
-      desktopNav.innerHTML = navs.map(n => `
-        <button onclick="navigate('${n.id}')" id="nav-desk-${n.id}" class="nav-btn-action w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-500 hover:bg-slate-100 hover:text-brand-600">
-          <i class="fa-solid ${n.icon} text-base"></i>
-          <span>${n.label}</span>
-        </button>
-      `).join('');
+      if (desktopNav) {
+        desktopNav.innerHTML = navs.map(n => `
+          <button onclick="navigate('${n.id}')" id="nav-desk-${n.id}" class="nav-btn-action w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-500 hover:bg-slate-100 hover:text-brand-600">
+            <i class="fa-solid ${n.icon} text-base"></i>
+            <span>${n.label}</span>
+          </button>
+        `).join('');
+      }
 
-      mobileNav.innerHTML = navs.map(n => `
-        <button onclick="navigate('${n.id}')" id="nav-mob-${n.id}" class="nav-btn-action flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-brand-600">
-          <i class="fa-solid ${n.icon} text-base mb-0.5"></i>
-          <span class="text-[8px] font-bold tracking-wide">${n.label}</span>
-        </button>
-      `).join('');
+      if (mobileNav) {
+        mobileNav.innerHTML = navs.map(n => `
+          <button onclick="navigate('${n.id}')" id="nav-mob-${n.id}" class="nav-btn-action flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-brand-600">
+            <i class="fa-solid ${n.icon} text-base mb-0.5"></i>
+            <span class="text-[8px] font-bold tracking-wide">${n.label}</span>
+          </button>
+        `).join('');
+      }
     }
 
     function navigate(viewId) {
@@ -1786,68 +1810,92 @@
       }
 
       let headerLabel = viewId.toUpperCase().replace('_', ' ');
-      document.getElementById('header-title').innerText = headerLabel;
+      const hTitle = document.getElementById('header-title');
+      if (hTitle) {
+        hTitle.innerText = headerLabel;
+      }
       renderView(viewId);
     }
 
     function renderView(viewId) {
       const container = document.getElementById('view-container');
+      if (!container) return;
       container.innerHTML = '';
 
       if (viewId === 'dashboard') {
         if (currentRole === 'admin') {
           const tmpl = document.getElementById('tmpl-admin-dashboard');
-          container.appendChild(tmpl.content.cloneNode(true));
-          renderAdminDashboard();
+          if (tmpl) {
+            container.appendChild(tmpl.content.cloneNode(true));
+            renderAdminDashboard();
+          }
         } else {
           const tmpl = document.getElementById('tmpl-guru-dashboard');
-          container.appendChild(tmpl.content.cloneNode(true));
-          renderGuruDashboard();
+          if (tmpl) {
+            container.appendChild(tmpl.content.cloneNode(true));
+            renderGuruDashboard();
+          }
         }
       } else if (viewId === 'siswa') {
         const tmpl = document.getElementById('tmpl-guru-siswa');
-        container.appendChild(tmpl.content.cloneNode(true));
-        renderSiswaWali();
+        if (tmpl) {
+          container.appendChild(tmpl.content.cloneNode(true));
+          renderSiswaWali();
+        }
       } else if (viewId === 'jurnal') {
         const tmpl = document.getElementById('tmpl-guru-jurnal');
-        container.appendChild(tmpl.content.cloneNode(true));
-        initJurnalForm();
+        if (tmpl) {
+          container.appendChild(tmpl.content.cloneNode(true));
+          initJurnalForm();
+        }
       } else if (viewId === 'rekap_siswa') {
         const tmpl = document.getElementById('tmpl-guru-rekap-siswa');
-        container.appendChild(tmpl.content.cloneNode(true));
-        initRekapSiswaView();
+        if (tmpl) {
+          container.appendChild(tmpl.content.cloneNode(true));
+          initRekapSiswaView();
+        }
       } else if (viewId === 'laporan') {
         const tmpl = document.getElementById('tmpl-guru-laporan');
-        container.appendChild(tmpl.content.cloneNode(true));
-        generateReport();
+        if (tmpl) {
+          container.appendChild(tmpl.content.cloneNode(true));
+          generateReport();
+        }
       } else if (viewId === 'sop') {
         const tmpl = document.getElementById('tmpl-guru-sop');
-        container.appendChild(tmpl.content.cloneNode(true));
+        if (tmpl) {
+          container.appendChild(tmpl.content.cloneNode(true));
+        }
       }
     }
 
     async function renderGuruDashboard() {
-      document.querySelectorAll('.teacher-name').forEach(el => el.innerText = currentUser.nama_guru);
+      const teacherName = currentUser ? currentUser.nama_guru : "Guru";
+      document.querySelectorAll('.teacher-name').forEach(el => el.innerText = teacherName);
       
       let roleLabel = 'Guru Wali';
-      if (currentRole === 'guru_bk') roleLabel = 'Guru BK (Bimbingan Konseling)';
-      if (currentRole === 'wali_kelas') roleLabel = `Wali Kelas ${currentUser.kelas_diampu}`;
+      if (currentUser) {
+        if (currentRole === 'guru_bk') roleLabel = 'Guru BK (Bimbingan Konseling)';
+        if (currentRole === 'wali_kelas') roleLabel = `Wali Kelas ${currentUser.kelas_diampu || ''}`;
+      }
       document.querySelectorAll('.teacher-role').forEach(el => el.innerText = roleLabel);
 
       let students = [];
       let journals = [];
+
+      const currentUsername = currentUser ? currentUser.username : '';
+      const currentKelasDiampu = currentUser ? currentUser.kelas_diampu : '';
 
       if (IS_PREVIEW) {
         if (currentRole === 'admin' || currentRole === 'guru_bk') {
           students = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
           journals = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
         } else if (currentRole === 'wali_kelas') {
-          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentUser.kelas_diampu);
+          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentKelasDiampu);
           const studentIds = students.map(s => s.id);
           journals = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => studentIds.includes(j.siswa_id));
         } else {
-          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUser.username);
-          journals = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUser.username);
+          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUsername);
+          journals = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUsername);
         }
       } else {
         try {
@@ -1859,7 +1907,7 @@
             const jrSnap = await window.fBase.getDocs(window.fBase.collection(db, "journals"));
             jrSnap.forEach(doc => journals.push({ id: doc.id, ...doc.data() }));
           } else if (currentRole === 'wali_kelas') {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentUser.kelas_diampu)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentKelasDiampu)));
             stdSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
             const studentIds = students.map(s => s.id);
 
@@ -1871,10 +1919,10 @@
               }
             });
           } else {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUser.username)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUsername)));
             stdSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
 
-            const jrSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "journals"), window.fBase.where("guru_id", "==", currentUser.username)));
+            const jrSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "journals"), window.fBase.where("guru_id", "==", currentUsername)));
             jrSnap.forEach(doc => journals.push({ id: doc.id, ...doc.data() }));
           }
         } catch (e) {
@@ -1882,31 +1930,38 @@
         }
       }
 
-      document.getElementById('stat-total-siswa').innerText = students.length;
-      document.getElementById('stat-total-pertemuan').innerText = journals.length;
-      document.getElementById('stat-total-bk').innerText = journals.filter(j => j.rekomendasi_bk).length;
-      document.getElementById('stat-total-wk').innerText = journals.filter(j => j.catatan_wali_kelas).length;
+      const statSiswa = document.getElementById('stat-total-siswa');
+      const statPertemuan = document.getElementById('stat-total-pertemuan');
+      const statBK = document.getElementById('stat-total-bk');
+      const statWK = document.getElementById('stat-total-wk');
+
+      if (statSiswa) statSiswa.innerText = students.length;
+      if (statPertemuan) statPertemuan.innerText = journals.length;
+      if (statBK) statBK.innerText = journals.filter(j => j.rekomendasi_bk).length;
+      if (statWK) statWK.innerText = journals.filter(j => j.catatan_wali_kelas).length;
 
       const logBox = document.getElementById('dashboard-recent-activities');
-      if (journals.length === 0) {
-        logBox.innerHTML = `<div class="p-5 text-center text-slate-400 text-xs"><i class="fa-solid fa-folder-open text-xl mb-1.5 block text-slate-300"></i>Belum ada bimbingan tercatat.</div>`;
-      } else {
-        journals.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
-        const limited = journals.slice(0, 5);
-        logBox.innerHTML = limited.map(j => `
-          <div class="p-3.5 flex items-start space-x-3 hover:bg-slate-50 transition text-xs">
-            <span class="p-2 bg-slate-100 rounded-lg text-brand-600"><i class="fa-solid fa-calendar-day text-sm"></i></span>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between mb-0.5">
-                <p class="font-bold text-slate-900 truncate">${getStudentName(j.siswa_id)}</p>
-                <span class="text-[9px] text-slate-400 font-semibold">${formatIndonesiaDate(j.tanggal)}</span>
+      if (logBox) {
+        if (journals.length === 0) {
+          logBox.innerHTML = `<div class="p-5 text-center text-slate-400 text-xs"><i class="fa-solid fa-folder-open text-xl mb-1.5 block text-slate-300"></i>Belum ada bimbingan tercatat.</div>`;
+        } else {
+          journals.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+          const limited = journals.slice(0, 5);
+          logBox.innerHTML = limited.map(j => `
+            <div class="p-3.5 flex items-start space-x-3 hover:bg-slate-50 transition text-xs">
+              <span class="p-2 bg-slate-100 rounded-lg text-brand-600"><i class="fa-solid fa-calendar-day text-sm"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <p class="font-bold text-slate-900 truncate">${getStudentName(j.siswa_id)}</p>
+                  <span class="text-[9px] text-slate-400 font-semibold">${formatIndonesiaDate(j.tanggal)}</span>
+                </div>
+                <p class="text-slate-600 truncate"><strong class="text-brand-600">Topik:</strong> ${j.topik_bahasan}</p>
+                ${j.rekomendasi_bk ? `<p class="text-[10px] text-purple-600 mt-1 font-semibold"><i class="fa-solid fa-comment-medical mr-1"></i>BK (${formatIndonesiaDate(j.tgl_rekomendasi_bk)}): ${j.rekomendasi_bk}</p>` : ''}
+                ${j.catatan_wali_kelas ? `<p class="text-[10px] text-amber-600 mt-0.5 font-semibold"><i class="fa-solid fa-clipboard-check mr-1"></i>Wali Kelas: ${j.catatan_wali_kelas}</p>` : ''}
               </div>
-              <p class="text-slate-600 truncate"><strong class="text-brand-600">Topik:</strong> ${j.topik_bahasan}</p>
-              ${j.rekomendasi_bk ? `<p class="text-[10px] text-purple-600 mt-1 font-semibold"><i class="fa-solid fa-comment-medical mr-1"></i>BK (${formatIndonesiaDate(j.tgl_rekomendasi_bk)}): ${j.rekomendasi_bk}</p>` : ''}
-              ${j.catatan_wali_kelas ? `<p class="text-[10px] text-amber-600 mt-0.5 font-semibold"><i class="fa-solid fa-clipboard-check mr-1"></i>Wali Kelas: ${j.catatan_wali_kelas}</p>` : ''}
             </div>
-          </div>
-        `).join('');
+          `).join('');
+        }
       }
     }
 
@@ -1925,14 +1980,18 @@
 
     async function renderSiswaWali() {
       const rowsArea = document.getElementById('student-table-rows');
+      if (!rowsArea) return;
       rowsArea.innerHTML = `<tr><td colspan="8" class="text-center p-4">Memuat data...</td></tr>`;
 
       let students = await fetchAllStudents();
 
+      const currentUsername = currentUser ? currentUser.username : '';
+      const currentKelasDiampu = currentUser ? currentUser.kelas_diampu : '';
+
       if (currentRole === 'wali_kelas') {
-        students = students.filter(s => s.kelas_id === currentUser.kelas_diampu);
+        students = students.filter(s => s.kelas_id === currentKelasDiampu);
       } else if (currentRole === 'guru_wali') {
-        students = students.filter(s => s.guru_wali_id === currentUser.username);
+        students = students.filter(s => s.guru_wali_id === currentUsername);
       }
 
       const btnContainer = document.getElementById('admin-add-student-btn-container');
@@ -2014,11 +2073,13 @@
       populateClassDatalist();
 
       const selectGuru = document.getElementById('modal-student-guru-wali');
-      const users = await fetchAllUsers();
-      const listWali = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
-      selectGuru.innerHTML = '<option value="">-- Tanpa Guru Pendamping --</option>' + listWali.map(([username, u]) => `
-        <option value="${username}">${u.nama_guru}</option>
-      `).join('');
+      if (selectGuru) {
+        const users = await fetchAllUsers();
+        const listWali = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
+        selectGuru.innerHTML = '<option value="">-- Tanpa Guru Pendamping --</option>' + listWali.map(([username, u]) => `
+          <option value="${username}">${u.nama_guru}</option>
+        `).join('');
+      }
 
       document.getElementById('student-modal').classList.remove('hidden');
     }
@@ -2040,17 +2101,20 @@
       populateClassDatalist();
 
       const selectGuru = document.getElementById('modal-student-guru-wali');
-      const users = await fetchAllUsers();
-      const listWali = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
-      selectGuru.innerHTML = '<option value="">-- Tanpa Guru Pendamping --</option>' + listWali.map(([username, u]) => `
-        <option value="${username}" ${target.guru_wali_id === username ? 'selected' : ''}>${u.nama_guru}</option>
-      `).join('');
+      if (selectGuru) {
+        const users = await fetchAllUsers();
+        const listWali = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
+        selectGuru.innerHTML = '<option value="">-- Tanpa Guru Pendamping --</option>' + listWali.map(([username, u]) => `
+          <option value="${username}" ${target.guru_wali_id === username ? 'selected' : ''}>${u.nama_guru}</option>
+        `).join('');
+      }
 
       document.getElementById('student-modal').classList.remove('hidden');
     }
 
     function populateClassDatalist() {
       const datalist = document.getElementById('existing-classes');
+      if (!datalist) return;
       const currentStudents = state.students || [];
       const uniqueClasses = [...new Set(currentStudents.map(s => s.kelas_id))].filter(Boolean);
       
@@ -2094,22 +2158,26 @@
     }
 
     async function initJurnalForm() {
-      document.getElementById('jurnal-tanggal').value = new Date().toISOString().split('T')[0];
+      const jTang = document.getElementById('jurnal-tanggal');
+      if (jTang) jTang.value = new Date().toISOString().split('T')[0];
       
       let logs = [];
       searchActiveStudents = [];
+
+      const currentKelasDiampu = currentUser ? currentUser.kelas_diampu : '';
+      const currentUsername = currentUser ? currentUser.username : '';
 
       if (IS_PREVIEW) {
         if (currentRole === 'admin' || currentRole === 'guru_bk') {
           searchActiveStudents = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
           logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
         } else if (currentRole === 'wali_kelas') {
-          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentUser.kelas_diampu);
+          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentKelasDiampu);
           const studentIds = searchActiveStudents.map(s => s.id);
           logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => studentIds.includes(j.siswa_id));
         } else {
-          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUser.username);
-          logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUser.username);
+          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUsername);
+          logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUsername);
         }
       } else {
         try {
@@ -2120,7 +2188,7 @@
             const jrSnap = await window.fBase.getDocs(window.fBase.collection(db, "journals"));
             jrSnap.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
           } else if (currentRole === 'wali_kelas') {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentUser.kelas_diampu)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentKelasDiampu)));
             stdSnap.forEach(doc => searchActiveStudents.push({ id: doc.id, ...doc.data() }));
             const studentIds = searchActiveStudents.map(s => s.id);
             const jrSnap = await window.fBase.getDocs(window.fBase.collection(db, "journals"));
@@ -2129,9 +2197,9 @@
               if (studentIds.includes(d.siswa_id)) logs.push({ id: doc.id, ...d });
             });
           } else {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUser.username)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUsername)));
             stdSnap.forEach(doc => searchActiveStudents.push({ id: doc.id, ...doc.data() }));
-            const jrSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "journals"), window.fBase.where("guru_id", "==", currentUser.username)));
+            const jrSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "journals"), window.fBase.where("guru_id", "==", currentUsername)));
             jrSnap.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
           }
         } catch (e) {
@@ -2157,10 +2225,12 @@
           logsCol.classList.remove('lg:col-span-2');
           logsCol.classList.add('lg:col-span-3');
         }
-        if (currentRole === 'guru_bk') {
-          notesInfo.innerText = "Masukkan Catatan Rekomendasi & Tanggal Rekomendasi Khusus BK Anda pada bimbingan terkait.";
-        } else {
-          notesInfo.innerText = "Masukkan Catatan Koordinasi Guru Wali Kelas pada bimbingan terkait.";
+        if (notesInfo) {
+          if (currentRole === 'guru_bk') {
+            notesInfo.innerText = "Masukkan Catatan Rekomendasi & Tanggal Rekomendasi Khusus BK Anda pada bimbingan terkait.";
+          } else {
+            notesInfo.innerText = "Masukkan Catatan Koordinasi Guru Wali Kelas pada bimbingan terkait.";
+          }
         }
       } else {
         if (formCol) formCol.classList.remove('hidden');
@@ -2168,7 +2238,9 @@
           logsCol.classList.remove('lg:col-span-3');
           logsCol.classList.add('lg:col-span-2');
         }
-        notesInfo.innerText = "Evaluasi diisi kolaboratif oleh Guru BK atau Wali Kelas masing-masing.";
+        if (notesInfo) {
+          notesInfo.innerText = "Evaluasi diisi kolaboratif oleh Guru BK atau Wali Kelas masing-masing.";
+        }
       }
 
       renderJurnalLogsList(logs);
@@ -2176,6 +2248,7 @@
 
     function renderJurnalLogsList(logs) {
       const listContainer = document.getElementById('jurnal-logs-list');
+      if (!listContainer) return;
       if (logs.length === 0) {
         listContainer.innerHTML = `<div class="bg-white p-5 rounded-xl border border-slate-200 text-center text-slate-400"><i class="fa-solid fa-folder-open text-2xl mb-1 block text-slate-300"></i>Belum ada bimbingan tercatat.</div>`;
         return;
@@ -2269,28 +2342,30 @@
       const title = document.getElementById('eval-modal-title');
       const container = document.getElementById('eval-input-field-container');
 
-      if (type === 'bk') {
-        title.innerText = "Isi Rekomendasi Guru BK";
-        container.innerHTML = `
-          <div class="space-y-3.5">
-            <div>
-              <label class="block font-bold text-slate-600 mb-1">Catatan Rekomendasi BK</label>
-              <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold text-slate-800" placeholder="Tulis bimbingan klinis BK...">${match.rekomendasi_bk || ""}</textarea>
+      if (container) {
+        if (type === 'bk') {
+          if (title) title.innerText = "Isi Rekomendasi Guru BK";
+          container.innerHTML = `
+            <div class="space-y-3.5">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Catatan Rekomendasi BK</label>
+                <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold text-slate-800" placeholder="Tulis bimbingan klinis BK...">${match.rekomendasi_bk || ""}</textarea>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Tanggal Rekomendasi BK</label>
+                <input type="date" id="eval-bk-date" required class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold" value="${match.tgl_rekomendasi_bk || new Date().toISOString().split('T')[0]}">
+              </div>
             </div>
+          `;
+        } else {
+          if (title) title.innerText = "Isi Catatan Wali Kelas";
+          container.innerHTML = `
             <div>
-              <label class="block font-bold text-slate-600 mb-1">Tanggal Rekomendasi BK</label>
-              <input type="date" id="eval-bk-date" required class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold" value="${match.tgl_rekomendasi_bk || new Date().toISOString().split('T')[0]}">
+              <label class="block font-bold text-slate-600 mb-1">Catatan Koordinasi Wali Kelas</label>
+              <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold text-slate-800" placeholder="Tulis koordinasi belajar...">${match.catatan_wali_kelas || ""}</textarea>
             </div>
-          </div>
-        `;
-      } else {
-        title.innerText = "Isi Catatan Wali Kelas";
-        container.innerHTML = `
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Catatan Koordinasi Wali Kelas</label>
-            <textarea id="eval-input-text" required rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 font-semibold text-slate-800" placeholder="Tulis koordinasi belajar...">${match.catatan_wali_kelas || ""}</textarea>
-          </div>
-        `;
+          `;
+        }
       }
 
       document.getElementById('evaluation-modal').classList.remove('hidden');
@@ -2356,6 +2431,7 @@
 
       const sObj = getStudentObject(sId);
       const kehadiranVal = document.querySelector('input[name="jurnal-kehadiran"]:checked').value;
+      const currentUsername = currentUser ? currentUser.username : '';
 
       const newLog = {
         id: "log_" + Date.now(),
@@ -2372,7 +2448,7 @@
         rencana_tindak_lanjut: document.getElementById('jurnal-rtl').value,
         keterangan: document.getElementById('jurnal-keterangan').value,
         kelas_id: sObj ? sObj.kelas_id : '',
-        guru_id: currentUser.username,
+        guru_id: currentUsername,
         rekomendasi_bk: "",
         tgl_rekomendasi_bk: "",
         catatan_wali_kelas: ""
@@ -2413,6 +2489,8 @@
     function mirrorToGoogleSheets(logData) {
       if (!gasUrl) return;
 
+      const currentNamaGuru = currentUser ? currentUser.nama_guru : 'Sistem';
+
       const payload = {
         action: "saveJournal",
         id: logData.id,
@@ -2429,7 +2507,7 @@
         aspek_bakat: logData.aspek_bakat || "",
         rekomendasi_bk: logData.rekomendasi_bk || "",
         catatan_wali_kelas: logData.catatan_wali_kelas || "",
-        petugas: currentUser.nama_guru
+        petugas: currentNamaGuru
       };
 
       fetch(gasUrl, {
@@ -2471,13 +2549,16 @@
 
     async function initRekapSiswaView() {
       searchActiveStudents = [];
+      const currentKelasDiampu = currentUser ? currentUser.kelas_diampu : '';
+      const currentUsername = currentUser ? currentUser.username : '';
+
       if (IS_PREVIEW) {
         if (currentRole === 'admin' || currentRole === 'guru_bk') {
           searchActiveStudents = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
         } else if (currentRole === 'wali_kelas') {
-          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentUser.kelas_diampu);
+          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentKelasDiampu);
         } else {
-          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUser.username);
+          searchActiveStudents = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUsername);
         }
       } else {
         try {
@@ -2486,10 +2567,10 @@
             const stdSnap = await window.fBase.getDocs(window.fBase.collection(db, "students"));
             stdSnap.forEach(doc => searchActiveStudents.push({ id: doc.id, ...doc.data() }));
           } else if (currentRole === 'wali_kelas') {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentUser.kelas_diampu)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("kelas_id", "==", currentKelasDiampu)));
             stdSnap.forEach(doc => searchActiveStudents.push({ id: doc.id, ...doc.data() }));
           } else {
-            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUser.username)));
+            const stdSnap = await window.fBase.getDocs(window.fBase.query(window.fBase.collection(db, "students"), window.fBase.where("guru_wali_id", "==", currentUsername)));
             stdSnap.forEach(doc => searchActiveStudents.push({ id: doc.id, ...doc.data() }));
           }
         } catch (e) {
@@ -2604,17 +2685,21 @@
     }
 
     async function generateReport() {
-      document.getElementById('lap-disp-guru').innerText = currentUser.nama_guru;
+      const currentNamaGuru = currentUser ? currentUser.nama_guru : '-';
+      const currentKelasDiampu = currentUser ? currentUser.kelas_diampu : '';
+      const currentUsername = currentUser ? currentUser.username : '';
+
+      document.getElementById('lap-disp-guru').innerText = currentNamaGuru;
       
-      let classBinaanText = currentUser.kelas_diampu || 'Siswa Binaan';
+      let classBinaanText = currentKelasDiampu || 'Siswa Binaan';
       if (currentRole === 'guru_wali') {
         classBinaanText = "Daftar Siswa Binaan Khusus";
       } else if (currentRole === 'guru_bk') {
         classBinaanText = "Seluruh Siswa SMKS SANJAYA";
       }
       document.getElementById('lap-disp-kelas').innerText = classBinaanText;
-      document.getElementById('lap-sign-name').innerText = currentUser.nama_guru;
-      document.getElementById('lap-sign-nip').innerText = currentUser.nip ? "NIP. " + currentUser.nip : "NIP. -";
+      document.getElementById('lap-sign-name').innerText = currentNamaGuru;
+      document.getElementById('lap-sign-nip').innerText = (currentUser && currentUser.nip) ? "NIP. " + currentUser.nip : "NIP. -";
 
       const filterSemester = document.getElementById('lap-semester').value;
       const filterBulan = document.getElementById('lap-bulan').value;
@@ -2630,12 +2715,12 @@
           logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
           students = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
         } else if (currentRole === 'wali_kelas') {
-          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentUser.kelas_diampu);
+          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.kelas_id === currentKelasDiampu);
           const studentIds = students.map(s => s.id);
           logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => studentIds.includes(j.siswa_id));
         } else {
-          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUser.username);
-          logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUser.username);
+          students = (JSON.parse(localStorage.getItem('jurnal_wali_students')) || []).filter(s => s.guru_wali_id === currentUsername);
+          logs = (JSON.parse(localStorage.getItem('jurnal_wali_logs')) || []).filter(j => j.guru_id === currentUsername);
         }
       } else {
         try {
@@ -2647,12 +2732,12 @@
           jrSnap.forEach(doc => logs.push(doc.data()));
 
           if (currentRole === 'wali_kelas') {
-            students = students.filter(s => s.kelas_id === currentUser.kelas_diampu);
+            students = students.filter(s => s.kelas_id === currentKelasDiampu);
             const studentIds = students.map(s => s.id);
             logs = logs.filter(j => studentIds.includes(j.siswa_id));
           } else if (currentRole === 'guru_wali') {
-            students = students.filter(s => s.guru_wali_id === currentUser.username);
-            logs = logs.filter(j => j.guru_id === currentUser.username);
+            students = students.filter(s => s.guru_wali_id === currentUsername);
+            logs = logs.filter(j => j.guru_id === currentUsername);
           }
         } catch (e) {
           console.error(e);
@@ -2765,39 +2850,45 @@
       const users = await fetchAllUsers();
       const tBody = document.getElementById('admin-wali-rows');
 
-      tBody.innerHTML = Object.entries(users).map(([usrname, data]) => `
-        <tr class="hover:bg-slate-50 transition text-xs text-slate-700 border-b border-slate-100">
-          <td class="p-3 font-bold text-slate-900">${data.nama_guru}</td>
-          <td class="p-3 font-mono font-medium">${usrname}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded font-bold uppercase text-[9px] text-slate-600">
-              ${data.role === 'admin' ? 'Admin' : data.role === 'guru_bk' ? 'Guru BK' : data.role === 'wali_kelas' ? 'Wali Kelas ' + data.kelas_diampu : 'Guru Wali (Asuh)'}
-            </span>
-          </td>
-          <td class="p-3 text-slate-500">${data.password}</td>
-          <td class="p-3 text-center col-action-admin">
-            <button onclick="openEditWaliModal('${usrname}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded text-[10px] transition">
-              <i class="fa-solid fa-pen"></i> Edit
-            </button>
-            <button onclick="deleteWaliAccount('${usrname}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded text-[10px] transition ml-1">
-              <i class="fa-solid fa-trash"></i> Hapus
-            </button>
-          </td>
-        </tr>
-      `).join('');
+      if (tBody) {
+        tBody.innerHTML = Object.entries(users).map(([usrname, data]) => `
+          <tr class="hover:bg-slate-50 transition text-xs text-slate-700 border-b border-slate-100">
+            <td class="p-3 font-bold text-slate-900">${data.nama_guru}</td>
+            <td class="p-3 font-mono font-medium">${usrname}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded font-bold uppercase text-[9px] text-slate-600">
+                ${data.role === 'admin' ? 'Admin' : data.role === 'guru_bk' ? 'Guru BK' : data.role === 'wali_kelas' ? 'Wali Kelas ' + data.kelas_diampu : 'Guru Wali (Asuh)'}
+              </span>
+            </td>
+            <td class="p-3 text-slate-500">${data.password}</td>
+            <td class="p-3 text-center col-action-admin">
+              <button onclick="openEditWaliModal('${usrname}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded text-[10px] transition">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button onclick="deleteWaliAccount('${usrname}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded text-[10px] transition ml-1">
+                <i class="fa-solid fa-trash"></i> Hapus
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
 
       const guruSelect = document.getElementById('admin-select-guru');
-      const staticWaliUsers = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
-      guruSelect.innerHTML = '<option value="">-- Pilih Guru Wali --</option>' + staticWaliUsers.map(([usr, data]) => `
-        <option value="${usr}">${data.nama_guru}</option>
-      `).join('');
+      if (guruSelect) {
+        const staticWaliUsers = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
+        guruSelect.innerHTML = '<option value="">-- Pilih Guru Wali --</option>' + staticWaliUsers.map(([usr, data]) => `
+          <option value="${usr}">${data.nama_guru}</option>
+        `).join('');
+      }
 
       const kelasSelect = document.getElementById('admin-select-kelas');
-      const students = await fetchAllStudents();
-      const uniqueClasses = [...new Set(students.map(s => s.kelas_id))].filter(Boolean);
-      kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + uniqueClasses.map(c => `
-        <option value="${c}">${c}</option>
-      `).join('');
+      if (kelasSelect) {
+        const students = await fetchAllStudents();
+        const uniqueClasses = [...new Set(students.map(s => s.kelas_id))].filter(Boolean);
+        kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + uniqueClasses.map(c => `
+          <option value="${c}">${c}</option>
+        `).join('');
+      }
 
       onAdminMappingTargetChange();
     }
@@ -2809,37 +2900,41 @@
       const assignedList = document.getElementById('admin-assigned-students-list');
 
       document.getElementById('admin-student-dropdown').classList.add('hidden');
-      searchInput.value = '';
+      if (searchInput) searchInput.value = '';
 
-      if (guruId && kelasId) {
-        searchInput.removeAttribute('disabled');
-        searchInput.placeholder = "Ketik nama siswa untuk dicari...";
-      } else {
-        searchInput.setAttribute('disabled', 'true');
-        searchInput.placeholder = "Pilih Guru & Kelas terlebih dahulu...";
+      if (searchInput) {
+        if (guruId && kelasId) {
+          searchInput.removeAttribute('disabled');
+          searchInput.placeholder = "Ketik nama siswa untuk dicari...";
+        } else {
+          searchInput.setAttribute('disabled', 'true');
+          searchInput.placeholder = "Pilih Guru & Kelas terlebih dahulu...";
+        }
       }
 
-      if (guruId) {
-        const students = await fetchAllStudents();
-        const assigned = students.filter(s => s.guru_wali_id === guruId);
+      if (assignedList) {
+        if (guruId) {
+          const students = await fetchAllStudents();
+          const assigned = students.filter(s => s.guru_wali_id === guruId);
 
-        if (assigned.length === 0) {
-          assignedList.innerHTML = `<div class="p-4 text-slate-400 text-center text-[10px]"><i class="fa-solid fa-folder-open text-base mb-1 block opacity-60"></i>Belum memiliki siswa dampingan</div>`;
-        } else {
-          assignedList.innerHTML = assigned.map(s => `
-            <div class="p-2.5 flex items-center justify-between text-[11px] bg-white hover:bg-slate-50 transition">
-              <div class="min-w-0 pr-2">
-                <span class="font-bold text-slate-900 block truncate">${s.nama_siswa}</span>
-                <span class="text-[9px] text-slate-500 font-semibold block">${s.kelas_id} • NISN: ${s.nisn || '-'}</span>
+          if (assigned.length === 0) {
+            assignedList.innerHTML = `<div class="p-4 text-slate-400 text-center text-[10px]"><i class="fa-solid fa-folder-open text-base mb-1 block opacity-60"></i>Belum memiliki siswa dampingan</div>`;
+          } else {
+            assignedList.innerHTML = assigned.map(s => `
+              <div class="p-2.5 flex items-center justify-between text-[11px] bg-white hover:bg-slate-50 transition">
+                <div class="min-w-0 pr-2">
+                  <span class="font-bold text-slate-900 block truncate">${s.nama_siswa}</span>
+                  <span class="text-[9px] text-slate-500 font-semibold block">${s.kelas_id} • NISN: ${s.nisn || '-'}</span>
+                </div>
+                <button onclick="removeStudentFromWali('${s.id}')" class="text-rose-600 hover:text-rose-700 font-bold text-[9px] py-1 px-2.5 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all flex-shrink-0">
+                  Batal Asuh
+                </button>
               </div>
-              <button onclick="removeStudentFromWali('${s.id}')" class="text-rose-600 hover:text-rose-700 font-bold text-[9px] py-1 px-2.5 bg-rose-50 hover:bg-rose-100 rounded-lg transition-all flex-shrink-0">
-                Batal Asuh
-              </button>
-            </div>
-          `).join('');
+            `).join('');
+          }
+        } else {
+          assignedList.innerHTML = `<div class="p-4 text-slate-400 text-center text-[10px]">Silakan pilih Guru Wali pendamping</div>`;
         }
-      } else {
-        assignedList.innerHTML = `<div class="p-4 text-slate-400 text-center text-[10px]">Silakan pilih Guru Wali pendamping</div>`;
       }
     }
 
@@ -2849,32 +2944,34 @@
       const dropdown = document.getElementById('admin-student-dropdown');
 
       if (!q) {
-        dropdown.classList.add('hidden');
+        if (dropdown) dropdown.classList.add('hidden');
         return;
       }
 
       const students = await fetchAllStudents();
       const filtered = students.filter(s => s.kelas_id === kelasId && s.nama_siswa.toLowerCase().includes(q));
 
-      if (filtered.length === 0) {
-        dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center text-[11px]">Siswa tidak ditemukan di kelas ini</div>`;
-      } else {
-        dropdown.innerHTML = filtered.map(s => {
-          let statusText = s.guru_wali_id 
-            ? `<span class="text-[8px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded border border-amber-200">Terbina Guru Lain</span>` 
-            : `<span class="text-[8px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded border border-emerald-200">Belum dipetakan</span>`;
-          return `
-            <div onclick="addStudentToWali('${s.id}')" class="p-2.5 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition text-[11px]">
-              <div class="text-left min-w-0 pr-2">
-                <p class="font-bold text-slate-800 truncate">${s.nama_siswa}</p>
-                <p class="text-[9px] text-slate-400 font-semibold">NISN: ${s.nisn || '-'}</p>
+      if (dropdown) {
+        if (filtered.length === 0) {
+          dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center text-[11px]">Siswa tidak ditemukan di kelas ini</div>`;
+        } else {
+          dropdown.innerHTML = filtered.map(s => {
+            let statusText = s.guru_wali_id 
+              ? `<span class="text-[8px] font-bold bg-amber-50 text-amber-600 px-2 py-0.5 rounded border border-amber-200">Terbina Guru Lain</span>` 
+              : `<span class="text-[8px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded border border-emerald-200">Belum dipetakan</span>`;
+            return `
+              <div onclick="addStudentToWali('${s.id}')" class="p-2.5 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition text-[11px]">
+                <div class="text-left min-w-0 pr-2">
+                  <p class="font-bold text-slate-800 truncate">${s.nama_siswa}</p>
+                  <p class="text-[9px] text-slate-400 font-semibold">NISN: ${s.nisn || '-'}</p>
+                </div>
+                ${statusText}
               </div>
-              ${statusText}
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
+        dropdown.classList.remove('hidden');
       }
-      dropdown.classList.remove('hidden');
     }
 
     async function addStudentToWali(studentId) {
@@ -2897,7 +2994,7 @@
       if (idx !== -1) {
         students[idx].guru_wali_id = "";
         await saveStudentToCloudAndLocal(studentId, students[idx]);
-        showToast("Siswa dikeluarkan dari daftar daftar dampingan.", "info");
+        showToast("Siswa dikeluarkan dari daftar dampingan.", "info");
         onAdminMappingTargetChange();
       }
     }
@@ -2935,10 +3032,12 @@
     function toggleModalKelas() {
       const r = document.getElementById('modal-wali-role').value;
       const container = document.getElementById('modal-kelas-container');
-      if (r === 'wali_kelas') {
-        container.classList.remove('hidden');
-      } else {
-        container.classList.add('hidden');
+      if (container) {
+        if (r === 'wali_kelas') {
+          container.classList.remove('hidden');
+        } else {
+          container.classList.add('hidden');
+        }
       }
     }
 
@@ -2983,7 +3082,7 @@
     }
 
     function getStudentObject(id) {
-      const list = state.students;
+      const list = state.students || [];
       return list.find(s => s.id === id);
     }
 
@@ -2999,45 +3098,55 @@
       const icon = document.getElementById('toast-icon');
       const text = document.getElementById('toast-text');
 
-      text.innerText = message;
+      if (text) text.innerText = message;
       
-      if (type === "success") {
-        toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-emerald-600 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
-        icon.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i>`;
-      } else if (type === "error") {
-        toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-rose-600 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
-        icon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i>`;
-      } else {
-        toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
-        icon.innerHTML = `<i class="fa-solid fa-circle-info text-base"></i>`;
-      }
+      if (toast && icon) {
+        if (type === "success") {
+          toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-emerald-600 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
+          icon.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i>`;
+        } else if (type === "error") {
+          toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-rose-600 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
+          icon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i>`;
+        } else {
+          toast.className = "fixed top-5 right-5 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs font-semibold transform translate-y-0 opacity-100 transition-all duration-300";
+          icon.innerHTML = `<i class="fa-solid fa-circle-info text-base"></i>`;
+        }
 
-      setTimeout(() => {
-        toast.className = "fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 text-xs";
-      }, 3500);
+        setTimeout(() => {
+          toast.className = "fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 text-xs";
+        }, 3500);
+      }
     }
 
     let confirmCallback = null;
     function showConfirmModal(text, onConfirm) {
       const modal = document.getElementById('confirm-modal');
       const msgText = document.getElementById('confirm-modal-text');
-      msgText.innerText = text;
+      if (msgText) msgText.innerText = text;
       confirmCallback = onConfirm;
-      modal.classList.remove('hidden');
+      if (modal) modal.classList.remove('hidden');
     }
 
-    document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
-      document.getElementById('confirm-modal').classList.add('hidden');
-      confirmCallback = null;
-    });
+    const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
+    if (btnConfirmCancel) {
+      btnConfirmCancel.addEventListener('click', () => {
+        const modal = document.getElementById('confirm-modal');
+        if (modal) modal.classList.add('hidden');
+        confirmCallback = null;
+      });
+    }
 
-    document.getElementById('btn-confirm-ok').addEventListener('click', () => {
-      document.getElementById('confirm-modal').classList.add('hidden');
-      if (confirmCallback) {
-        confirmCallback();
-      }
-      confirmCallback = null;
-    });
+    const btnConfirmOk = document.getElementById('btn-confirm-ok');
+    if (btnConfirmOk) {
+      btnConfirmOk.addEventListener('click', () => {
+        const modal = document.getElementById('confirm-modal');
+        if (modal) modal.classList.add('hidden');
+        if (confirmCallback) {
+          confirmCallback();
+        }
+        confirmCallback = null;
+      });
+    }
   </script>
 
   <!-- PWA REGISTRATION -->
@@ -3045,7 +3154,7 @@
     if ('serviceWorker' in navigator) {
       try {
         const swBlobCode = `
-          const CACHE_NAME = 'jurnal-guru-sanjaya-v10';
+          const CACHE_NAME = 'jurnal-guru-sanjaya-v12';
           self.addEventListener('fetch', event => {
             event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
           });
