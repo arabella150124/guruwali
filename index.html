@@ -352,14 +352,16 @@
           <p class="text-[10px] text-slate-500 mt-0.5">Kelola data murid asuhan binaan khusus Anda di bawah ini</p>
         </div>
         
-        <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <div class="relative w-full sm:w-64">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
               <i class="fa-solid fa-magnifying-glass text-xs"></i>
             </span>
             <input type="text" id="siswa-search-input" oninput="filterSiswaTable()" placeholder="Ketik nama siswa atau kelas..." class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-brand-500 outline-none">
           </div>
-          <div id="admin-add-student-btn-container" class="w-full sm:w-auto flex-shrink-0">
+          
+          <!-- Tombol Tambah Siswa & Tombol Tarik/Ekspor GAS -->
+          <div id="admin-add-student-btn-container" class="w-full sm:w-auto flex flex-wrap gap-2">
             <!-- Injected by JS based on role authorization -->
           </div>
         </div>
@@ -922,13 +924,12 @@
             <input type="text" id="modal-student-nisn" required class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="0012543210">
           </div>
           <div>
+            <!-- INPUT KELAS DINAMIS DENGAN DATALIST (Ketik Bebas & Rekomendasi Pintar) -->
             <label class="block font-bold text-slate-600 mb-1">Kelas</label>
-            <select id="modal-student-kelas" required class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white">
-              <option value="Kelas XI-TKJ 1">Kelas XI-TKJ 1</option>
-              <option value="Kelas XI-TKJ 2">Kelas XI-TKJ 2</option>
-              <option value="Kelas X-TKJ">Kelas X-TKJ</option>
-              <option value="Kelas XII-TKJ">Kelas XII-TKJ</option>
-            </select>
+            <input type="text" id="modal-student-kelas" list="existing-classes" required class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="Ketik kelas baru / pilih...">
+            <datalist id="existing-classes">
+              <!-- Dynamically rendered options in JS -->
+            </datalist>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -1003,7 +1004,7 @@
           <h4 class="font-bold text-brand-900 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
             <i class="fa-solid fa-file-excel text-emerald-600"></i> 1. Koneksi Google Sheets (URL_GAS)
           </h4>
-          <p class="text-slate-500 text-[10px] mb-2">Masukkan URL Google Apps Script Web App untuk mengirim data jurnal secara otomatis ke Spreadsheet sekolah.</p>
+          <p class="text-slate-500 text-[10px] mb-2">Masukkan URL Google Apps Script Web App untuk melakukan pertukaran data dua arah data siswa dan laporan jurnal bimbingan.</p>
           <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/xxxx/exec" class="w-full py-2 px-3 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-mono text-[11px]">
         </div>
         <hr class="border-slate-100">
@@ -1011,7 +1012,7 @@
           <h4 class="font-bold text-brand-900 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
             <i class="fa-solid fa-fire text-amber-500"></i> 2. Database Firebase Firestore
           </h4>
-          <p class="text-slate-500 text-[10px] mb-2">Gunakan config JSON Firebase Firestore untuk login antar-guru secara langsung (online).</p>
+          <p class="text-slate-500 text-[10px] mb-2">Gunakan config JSON Firebase Firestore untuk kolaborasi real-time multi-guru secara instan.</p>
           <textarea id="config-firebase-json" rows="6" placeholder='{ "apiKey": "AIzaSy...", "projectId": "..." }' class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] outline-none focus:ring-1 focus:ring-brand-500"></textarea>
         </div>
         
@@ -1059,13 +1060,13 @@
   <script>
     let IS_PREVIEW = false;
     let HAS_GAS = false;
-    let gasUrl = "https://script.google.com/macros/s/AKfycbwWjCJiKQeerUhL1FbOsQsG4eGbon0WyJS86s2dSMioKvV0VAEQqhpRNFoFVTgIGzpwkA/exec";
+    let gasUrl = "https://script.google.com/macros/s/AKfycbxlI-L7p_mtxkak-PkeJoMppsouBNkzowP4i0yPWeinv4qVZMMg0KSEJH4QGtgNRWv6Sg/exec";
     
     let firebaseConfig = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
       authDomain: "guruwali-26f33.firebaseapp.com",
       projectId: "guruwali-26f33",
-      storageBucket: "guruwali-26f33.firebasestorage.app",
+      storageBucket: "guruwali-26f33.firebasestorage.ap",
       messagingSenderId: "240614016986",
       appId: "1:240614016986:web:7f3073014e1ffb915ae2e3"
     };
@@ -1086,11 +1087,7 @@
       { id: "std_1", nama_siswa: "Aditya Bagus Septiawan", nisn: "0012543210", kelas_id: "Kelas XI-TKJ 1", gender: "L", kontak: "081234567001", catatan: "Minat kuat di teknologi jaringan komputer", guru_wali_id: "wali_petrus" },
       { id: "std_2", nama_siswa: "Anis Nona Lya Rama Dani", nisn: "0012543211", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567002", catatan: "Aktif di kegiatan OSIS dan Kepramukaan", guru_wali_id: "wali_petrus" },
       { id: "std_3", nama_siswa: "Arnesti Wulan Ndari.", nisn: "0012543212", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567003", catatan: "Suka menggambar skema topologi", guru_wali_id: "wali_petrus" },
-      { id: "std_4", nama_siswa: "Cinta Zahra Pratama", nisn: "0012543213", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567004", catatan: "Kemampuan komunikasi verbal menonjol", guru_wali_id: "wali_petrus" },
-      { id: "std_5", nama_siswa: "Dhefani Magfirotul Fajriah", nisn: "0012543214", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567005", catatan: "Butuh bimbingan konfigurasi server", guru_wali_id: "wali_petrus" },
-      { id: "std_6", nama_siswa: "Fadhil Bagus Sapurta", nisn: "0012543215", kelas_id: "Kelas XI-TKJ 1", gender: "L", kontak: "081234567006", catatan: "Gemar berolahraga sepakbola", guru_wali_id: "wali_petrus" },
-      { id: "std_7", nama_siswa: "Faiqah Clara Nellzhi", nisn: "0012543216", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567007", catatan: "Siswa berprestasi bidang akademik", guru_wali_id: "wali_maria" },
-      { id: "std_8", nama_siswa: "Hafiz Rosalina Aneztha", nisn: "0012543217", kelas_id: "Kelas XI-TKJ 1", gender: "L", kontak: "081234567008", catatan: "Mengikuti les musik instrumental", guru_wali_id: "wali_maria" }
+      { id: "std_4", nama_siswa: "Cinta Zahra Pratama", nisn: "0012543213", kelas_id: "Kelas XI-TKJ 1", gender: "P", kontak: "081234567004", catatan: "Kemampuan komunikasi verbal menonjol", guru_wali_id: "wali_petrus" }
     ];
 
     const DUMMY_USERS_INITIAL = {
@@ -1276,6 +1273,89 @@
         } catch (e) {
           console.error(e);
         }
+      }
+    }
+
+    async function pullStudentsFromGoogleSheets() {
+      if (!HAS_GAS || !gasUrl) {
+        showToast("Atur URL GAS Google Sheets Anda terlebih dahulu di menu Setup Cloud!", "error");
+        return;
+      }
+
+      showToast("Sedang menarik data siswa dari Google Sheets...", "info");
+      
+      try {
+        const response = await fetch(`${gasUrl}?action=getStudents`);
+        const result = await response.json();
+        
+        if (result && Array.isArray(result)) {
+          if (result.length === 0) {
+            showToast("Tidak ada data siswa ditemukan di tab 'Siswa' Google Sheets Anda.", "error");
+            return;
+          }
+          
+          // Gabungkan data: update yang ada, tambah yang baru
+          let currentStudents = JSON.parse(localStorage.getItem('jurnal_wali_students')) || [];
+          
+          result.forEach(newS => {
+            const index = currentStudents.findIndex(s => s.id === newS.id || s.nisn === newS.nisn);
+            if (index !== -1) {
+              currentStudents[index] = { ...currentStudents[index], ...newS };
+            } else {
+              currentStudents.push(newS);
+            }
+          });
+          
+          localStorage.setItem('jurnal_wali_students', JSON.stringify(currentStudents));
+          state.students = currentStudents;
+          
+          // Jika ada Firestore Firebase aktif, sinkronkan masal ke sana
+          if (!IS_PREVIEW) {
+            for (let s of currentStudents) {
+              const { id, ...cleanObj } = s;
+              await window.fBase.setDoc(window.fBase.doc(dbInstance, "students", s.id), cleanObj);
+            }
+          }
+          
+          showToast(`Berhasil memuat ${result.length} data siswa dari Google Sheets!`, "success");
+          renderSiswaWali();
+        } else {
+          showToast("Gagal membaca respons server GAS.", "error");
+        }
+      } catch (err) {
+        console.error("Gagal menarik data dari GAS:", err);
+        showToast("Sambungan gagal. Pastikan deployment GAS diatur ke 'Anyone'.", "error");
+      }
+    }
+
+    async function pushStudentsToGoogleSheets() {
+      if (!HAS_GAS || !gasUrl) {
+        showToast("Atur URL GAS Google Sheets Anda terlebih dahulu!", "error");
+        return;
+      }
+
+      showToast("Mengirimkan cadangan siswa ke Google Sheets...", "info");
+      const students = await fetchAllStudents();
+
+      try {
+        const payload = {
+          action: "exportStudents",
+          students: students
+        };
+
+        const response = await fetch(gasUrl, {
+          method: "POST",
+          mode: "no-cors", // CORS bypass untuk web-app GAS
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        showToast("Berhasil mencadangkan seluruh data siswa ke tab 'Siswa' Google Sheets!", "success");
+      } catch (err) {
+        console.error("Gagal mengirim data ke GAS:", err);
+        showToast("Gagal melakukan pencadangan otomatis.", "error");
       }
     }
 
@@ -1649,13 +1729,19 @@
         students = students.filter(s => s.guru_wali_id === currentUser.username);
       }
 
-      // Inject dynamically standard "+ Tambah Siswa Baru" button if Admin or Counselor BK
+      // Inject dynamically standard "+ Tambah Siswa Baru" & GAS buttons if Admin or Counselor BK
       const btnContainer = document.getElementById('admin-add-student-btn-container');
       if (btnContainer) {
         if (currentRole === 'admin' || currentRole === 'guru_bk') {
           btnContainer.innerHTML = `
-            <button onclick="openAddStudentModal()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <button onclick="openAddStudentModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
               <i class="fa-solid fa-user-plus text-xs"></i> Tambah Siswa Baru
+            </button>
+            <button onclick="pullStudentsFromGoogleSheets()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-import text-xs"></i> Tarik Siswa (GAS)
+            </button>
+            <button onclick="pushStudentsToGoogleSheets()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-export text-xs"></i> Kirim Siswa (GAS)
             </button>
           `;
         } else {
@@ -1664,7 +1750,7 @@
       }
 
       if (students.length === 0) {
-        rowsArea.innerHTML = `<tr><td colspan="8" class="text-center p-6 text-slate-400">Tidak ada murid dampingan terdaftar.</td></tr>`;
+        rowsArea.innerHTML = `<tr><td colspan="8" class="text-center p-6 text-slate-400">Tidak ada murid dampingan terdaftar. Klik 'Tarik Siswa (GAS)' jika ingin mengambil dari Google Sheets Anda.</td></tr>`;
         return;
       }
 
@@ -1689,7 +1775,7 @@
             <td class="p-3 text-center font-bold text-slate-500">${idx + 1}</td>
             <td class="p-3 font-bold text-slate-900">${s.nama_siswa}</td>
             <td class="p-3 font-mono text-[10px] text-slate-600">${s.nisn || '-'}</td>
-            <td class="p-3 font-semibold text-slate-700">${s.kelas_id}</td>
+            <td class="p-3 font-semibold text-slate-700">${s.kelas_id || '-'}</td>
             <td class="p-3 text-center">${s.gender}</td>
             <td class="p-3 font-semibold">${s.kontak || '-'}</td>
             <td class="p-3 text-slate-500 max-w-xs truncate" title="${s.catatan || ''}">${s.catatan || '-'}</td>
@@ -1706,10 +1792,13 @@
       document.getElementById('modal-student-id').value = "";
       document.getElementById('modal-student-nama').value = "";
       document.getElementById('modal-student-nisn').value = "";
-      document.getElementById('modal-student-kelas').value = "Kelas XI-TKJ 1";
+      document.getElementById('modal-student-kelas').value = "";
       document.getElementById('modal-student-gender').value = "L";
       document.getElementById('modal-student-kontak').value = "";
       document.getElementById('modal-student-catatan').value = "";
+
+      // Muat daftar kelas ke datalist untuk saran otomatis
+      populateClassDatalist();
 
       const selectGuru = document.getElementById('modal-student-guru-wali');
       const users = await fetchAllUsers();
@@ -1730,10 +1819,13 @@
       document.getElementById('modal-student-id').value = id;
       document.getElementById('modal-student-nama').value = target.nama_siswa;
       document.getElementById('modal-student-nisn').value = target.nisn || "";
-      document.getElementById('modal-student-kelas').value = target.kelas_id || "Kelas XI-TKJ 1";
+      document.getElementById('modal-student-kelas').value = target.kelas_id || "";
       document.getElementById('modal-student-gender').value = target.gender || "L";
       document.getElementById('modal-student-kontak').value = target.kontak || "";
       document.getElementById('modal-student-catatan').value = target.catatan || "";
+
+      // Muat daftar kelas ke datalist untuk saran otomatis
+      populateClassDatalist();
 
       const selectGuru = document.getElementById('modal-student-guru-wali');
       const users = await fetchAllUsers();
@@ -1743,6 +1835,21 @@
       `).join('');
 
       document.getElementById('student-modal').classList.remove('hidden');
+    }
+
+    function populateClassDatalist() {
+      const datalist = document.getElementById('existing-classes');
+      const currentStudents = state.students || [];
+      
+      // Ambil daftar kelas unik yang sudah ada di sistem
+      const uniqueClasses = [...new Set(currentStudents.map(s => s.kelas_id))].filter(Boolean);
+      
+      // Default classes jika kosong
+      if (uniqueClasses.length === 0) {
+        uniqueClasses.push("Kelas X-TKJ", "Kelas XI-TKJ 1", "Kelas XI-TKJ 2", "Kelas XII-TKJ");
+      }
+
+      datalist.innerHTML = uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function closeStudentModal() {
@@ -1757,7 +1864,7 @@
       const studentObj = {
         nama_siswa: document.getElementById('modal-student-nama').value.trim(),
         nisn: document.getElementById('modal-student-nisn').value.trim(),
-        kelas_id: document.getElementById('modal-student-kelas').value,
+        kelas_id: document.getElementById('modal-student-kelas').value.trim(), // Mendukung input kelas bebas
         gender: document.getElementById('modal-student-gender').value,
         kontak: document.getElementById('modal-student-kontak').value.trim(),
         guru_wali_id: document.getElementById('modal-student-guru-wali').value,
@@ -1838,7 +1945,7 @@
         return;
       }
 
-      const filtered = searchActiveStudents.filter(s => s.nama_siswa.toLowerCase().includes(q) || s.kelas_id.toLowerCase().includes(q));
+      const filtered = searchActiveStudents.filter(s => s.nama_siswa.toLowerCase().includes(q) || (s.kelas_id && s.kelas_id.toLowerCase().includes(q)));
 
       if (filtered.length === 0) {
         dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center">Siswa tidak ditemukan</div>`;
@@ -1846,7 +1953,7 @@
         dropdown.innerHTML = filtered.map(s => `
           <div onclick="selectSiswaForJournal('${s.id}', '${s.nama_siswa}')" class="p-2.5 hover:bg-slate-50 cursor-pointer flex items-center justify-between">
             <span class="font-bold text-slate-855">${s.nama_siswa}</span>
-            <span class="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded">${s.kelas_id}</span>
+            <span class="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded">${s.kelas_id || '-'}</span>
           </div>
         `).join('');
       }
