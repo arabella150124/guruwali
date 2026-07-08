@@ -265,7 +265,7 @@
           <div id="sync-indicator" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold">
             <!-- Diisi lewat JS -->
           </div>
-          <!-- PROTEKSI KEAMANAN: class "hidden" ditambahkan secara default -->
+          <!-- PROTEKSI KEAMANAN: Hanya admin yang memiliki hak kontrol database -->
           <button id="btn-sync-firebase" onclick="openFirebaseConfigModal()" class="hidden no-print px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[9px] font-bold flex items-center gap-1 text-slate-700 transition">
             <i class="fa-solid fa-gears"></i> Setup DB & GAS
           </button>
@@ -518,7 +518,7 @@
       <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm print-page text-xs leading-relaxed" id="printable-report-sheet">
         <div class="text-center border-b-4 border-slate-900 pb-3 mb-5">
           <h2 class="text-base font-extrabold uppercase text-slate-900 tracking-wide font-comfortaa">FORMAT PELAPORAN SEMESTER GURU WALI</h2>
-          <h3 class="text-sm font-bold text-slate-700">SMKS SANJAYA BAJAWA</h3>
+          <h3 class="text-sm font-bold text-slate-700">SMKS SANJANA BAJAWA</h3>
           <p class="text-[9px] text-slate-500 mt-1">NPSN: 504302966 • TA 2025/2026 • Kurikulum Terpadu</p>
         </div>
 
@@ -768,27 +768,54 @@
     </div>
   </template>
 
+  <!-- ADMIN DASHBOARD WORKSPACE -->
   <template id="tmpl-admin-dashboard">
     <div class="space-y-6">
-      <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-950 text-white shadow-md">
-        <h3 class="text-base font-bold font-comfortaa">Panel Kontrol Administrator</h3>
-        <p class="text-xs text-slate-300 mt-1">SMKS SANJAYA BAJAWA. Daftarkan akun, atur kelas, dan petakan penugasan asuhan Guru Wali per siswa.</p>
+      <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-950 text-white shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold font-comfortaa">Panel Kontrol Administrator</h3>
+          <p class="text-xs text-slate-300 mt-1">SMKS SANJAYA BAJAWA. Daftarkan akun pendidik, kelola data master siswa, dan atur pemetaan asuh secara real-time.</p>
+        </div>
+        <div class="hidden md:flex gap-2">
+          <button onclick="pullDataFromGoogleSheets()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data dari Sheets
+          </button>
+          <button onclick="pushDataToGoogleSheets()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Data ke Sheets
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- Pengelolaan Akun Pendidik -->
-        <div class="xl:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <!-- Admin Dashboard Tab Headers -->
+      <div class="flex flex-wrap border-b border-slate-200 text-xs font-bold gap-1">
+        <button onclick="switchAdminTab('pendidik')" id="admin-tab-btn-pendidik" class="admin-tab-btn px-4 py-2.5 border-b-2 border-slate-800 text-slate-800 transition">
+          <i class="fa-solid fa-user-shield mr-1"></i> 1. Akun Pendidik
+        </button>
+        <button onclick="switchAdminTab('siswa')" id="admin-tab-btn-siswa" class="admin-tab-btn px-4 py-2.5 border-b-2 border-transparent text-slate-400 transition">
+          <i class="fa-solid fa-user-graduate mr-1"></i> 2. Master Data Siswa
+        </button>
+        <button onclick="switchAdminTab('pemetaan')" id="admin-tab-btn-pemetaan" class="admin-tab-btn px-4 py-2.5 border-b-2 border-transparent text-slate-400 transition">
+          <i class="fa-solid fa-people-arrows mr-1"></i> 3. Pemetaan Dampingan
+        </button>
+        <button onclick="switchAdminTab('integrasi')" id="admin-tab-btn-integrasi" class="admin-tab-btn px-4 py-2.5 border-b-2 border-transparent text-slate-400 transition">
+          <i class="fa-solid fa-file-excel mr-1"></i> 4. Sinkronisasi Google Sheets
+        </button>
+      </div>
+
+      <!-- Tab 1: Akun Pendidik -->
+      <div id="admin-panel-pendidik" class="admin-panel space-y-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-slate-900 text-xs uppercase font-comfortaa">Database Akun Pendidik (Multi-Role)</h4>
             <button onclick="openAddWaliModal()" class="px-3 py-1.5 bg-brand-100 hover:bg-brand-200 text-brand-700 text-xs rounded-lg font-bold transition">
-              + Tambah Pendidik
+              + Tambah Pendidik / Staf
             </button>
           </div>
           <div class="overflow-x-auto text-xs">
             <table class="w-full text-left">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
-                  <th class="p-3">Nama</th>
+                  <th class="p-3">Nama Lengkap</th>
                   <th class="p-3">Username/NIP</th>
                   <th class="p-3">Peran Kerja</th>
                   <th class="p-3">Password</th>
@@ -796,83 +823,281 @@
                 </tr>
               </thead>
               <tbody id="admin-wali-rows" class="divide-y divide-slate-100">
-                <!-- Baris Akun diisi JS -->
+                <!-- Diisi JS -->
               </tbody>
             </table>
           </div>
         </div>
+      </div>
 
-        <!-- Penugasan Asuhan Pintar -->
+      <!-- Tab 2: Master Data Siswa -->
+      <div id="admin-panel-siswa" class="admin-panel hidden space-y-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <h4 class="font-bold text-slate-900 text-xs uppercase font-comfortaa">Master Database Seluruh Siswa</h4>
+              <p class="text-[10px] text-slate-400 mt-0.5">Tambah siswa baru atau edit data murid secara massal/manual</p>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <input type="text" id="admin-siswa-search-table" oninput="filterAdminSiswaTable()" placeholder="Cari nama atau kelas..." class="w-full sm:w-48 px-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-brand-500">
+              <button onclick="openAddSiswaModal()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition-all flex-shrink-0">
+                + Tambah Siswa
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto text-xs">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                  <th class="p-3">Nama Siswa</th>
+                  <th class="p-3">NISN</th>
+                  <th class="p-3">Kelas Asal</th>
+                  <th class="p-3 text-center">L/P</th>
+                  <th class="p-3">Kontak Wali</th>
+                  <th class="p-3">Guru Wali</th>
+                  <th class="p-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admin-siswa-rows" class="divide-y divide-slate-100">
+                <!-- Diisi JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Pemetaan Dampingan -->
+      <div id="admin-panel-pemetaan" class="admin-panel hidden space-y-4">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <div>
-            <h4 class="font-bold text-slate-900 text-xs uppercase font-comfortaa">Pemetaan Dampingan (Klik Guru & Kelas)</h4>
-            <p class="text-[10px] text-slate-400 mt-0.5">Petakan asuhan Guru Wali per siswa berdasarkan pembagian dinamis</p>
+            <h4 class="font-bold text-slate-900 text-xs uppercase font-comfortaa">Hubungkan Siswa dengan Guru Wali Pendamping</h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">Petakan asuhan Guru Wali per siswa berdasarkan pembagian asuhan formal</p>
           </div>
 
-          <div class="space-y-4 text-xs">
-            <div>
-              <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-user-tie mr-1 text-brand-500"></i>1. Pilih Guru Wali (Pendamping)</label>
-              <select id="admin-select-guru" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
-                <!-- Dropdown -->
-              </select>
-            </div>
-
-            <div>
-              <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-school mr-1 text-brand-500"></i>2. Pilih Kelas Asal Siswa</label>
-              <select id="admin-select-kelas" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
-                <!-- Dropdown -->
-              </select>
-            </div>
-
-            <div class="relative">
-              <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-search mr-1 text-brand-500"></i>3. Cari & Tambah Siswa Dampingan</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="admin-student-search" oninput="searchSiswaForMapping()" placeholder="Pilih Guru & Kelas terlebih dahulu..." class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-medium" disabled>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+            <div class="space-y-4">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-user-tie mr-1 text-brand-500"></i>1. Pilih Guru Wali (Pendamping)</label>
+                <select id="admin-select-guru" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
+                  <!-- Dropdown -->
+                </select>
               </div>
-              <div id="admin-student-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto hidden divide-y divide-slate-100"></div>
+
+              <div>
+                <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-school mr-1 text-brand-500"></i>2. Pilih Kelas Asal Siswa</label>
+                <select id="admin-select-kelas" onchange="onAdminMappingTargetChange()" class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white focus:ring-1 focus:ring-brand-500 outline-none font-semibold text-slate-700">
+                  <!-- Dropdown -->
+                </select>
+              </div>
+
+              <div class="relative">
+                <label class="block font-bold text-slate-600 mb-1"><i class="fa-solid fa-search mr-1 text-brand-500"></i>3. Cari & Tambah Siswa Dampingan</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                  <input type="text" id="admin-student-search" oninput="searchSiswaForMapping()" placeholder="Pilih Guru & Kelas terlebih dahulu..." class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-medium" disabled>
+                </div>
+                <div id="admin-student-dropdown" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto hidden divide-y divide-slate-100"></div>
+              </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-100">
+            <div class="md:col-span-2 pt-2 md:pt-0">
               <h5 class="font-extrabold text-slate-700 text-[10px] uppercase tracking-wider mb-2"><i class="fa-solid fa-users-viewfinder mr-1 text-brand-600"></i>Siswa Dampingan Saat Ini:</h5>
-              <div id="admin-assigned-students-list" class="border border-slate-150 rounded-xl divide-y divide-slate-100 max-h-56 overflow-y-auto bg-slate-50">
+              <div id="admin-assigned-students-list" class="border border-slate-150 rounded-xl divide-y divide-slate-100 max-h-72 overflow-y-auto bg-slate-50">
                 <!-- JS filler -->
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Tab 4: Integrasi Google Sheets -->
+      <div id="admin-panel-integrasi" class="admin-panel hidden space-y-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+          <div class="border-b border-slate-100 pb-3">
+            <h4 class="font-bold text-slate-900 text-sm font-comfortaa uppercase"><i class="fa-solid fa-cloud-arrow-down mr-1.5 text-brand-600"></i>Alur Impor Massal Excel & Sinkronisasi Google Sheets</h4>
+            <p class="text-[11px] text-slate-500 mt-1">Anda dapat melakukan impor seluruh data siswa, guru, kelas, dan riwayat asuhan dari Excel dengan memindahkannya ke Google Sheets terlebih dahulu. Ikuti petunjuk sederhana berikut:</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 leading-relaxed">
+            <div class="space-y-3">
+              <h5 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide"><i class="fa-solid fa-list-check mr-1 text-emerald-600"></i>Langkah-langkah Persiapan:</h5>
+              <ol class="list-decimal pl-5 space-y-1.5 text-slate-600">
+                <li>Buka Google Sheets baru dan pastikan ada 3 Sheet dengan nama persis: <code class="font-bold bg-slate-100 px-1 text-rose-600 rounded">Users</code>, <code class="font-bold bg-slate-100 px-1 text-rose-600 rounded">Students</code>, dan <code class="font-bold bg-slate-100 px-1 text-rose-600 rounded">Journals</code>.</li>
+                <li>Import atau Copy-Paste data Excel Anda ke masing-masing sheet dengan susunan header kolom yang sesuai.</li>
+                <li>Pilih menu **Ekstensi** &gt; **Apps Script**.</li>
+                <li>Hapus kode bawaan, copy-paste kode Apps Script di sebelah kanan, dan tekan **Simpan** (ikon disket).</li>
+                <li>Klik **Terapkan (Deploy)** &gt; **Penerapan Baru**. Pilih jenis **Aplikasi Web**, setel akses ke **Siapa saja (Anyone)**, lalu klik Deploy.</li>
+                <li>Salin URL Aplikasi Web yang diberikan, tempelkan di kotak **URL Apps Script** di bawah ini, dan klik **Simpan Koneksi**.</li>
+                <li>Gunakan tombol **Tarik Semua Data** di bawah untuk memindahkan isi Google Sheets ke sistem Cloud Firebase web Anda!</li>
+              </ol>
+
+              <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl space-y-3">
+                <h6 class="font-bold text-brand-900 text-[10px] uppercase">Kontrol Aksi Database Sekolah</h6>
+                <div class="flex flex-wrap gap-2">
+                  <button onclick="pullDataFromGoogleSheets()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Tarik Data dari Google Sheets
+                  </button>
+                  <button onclick="pushDataToGoogleSheets()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Data ke Google Sheets
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Apps Script Code Block -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-[10px] text-slate-500 uppercase">Salin Script Google Apps (GAS):</span>
+                <button onclick="copyAppsScriptCode()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[9px] font-bold text-slate-700">
+                  <i class="fa-solid fa-copy mr-1"></i> Salin Kode
+                </button>
+              </div>
+              <textarea id="apps-script-code-area" readonly class="w-full h-80 bg-slate-900 text-slate-300 font-mono text-[9px] p-3 rounded-xl focus:outline-none leading-relaxed" style="resize:none;">
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var action = e.parameter.action;
+  if (action === "fetchBackupData") {
+    var data = {
+      users: readSheetAsJSON(sheet, "Users"),
+      students: readSheetAsJSON(sheet, "Students"),
+      journals: readSheetAsJSON(sheet, "Journals")
+    };
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", data: data }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  return ContentService.createTextOutput("GAS Online dan Aktif.");
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var response = { status: "success", message: "" };
+  try {
+    var postData = JSON.parse(e.postData.contents);
+    var action = postData.action;
+    var payload = postData.payload;
+
+    if (action === "saveStudent") {
+      upsertRow(sheet, "Students", payload, "id");
+    } else if (action === "saveUser") {
+      upsertRow(sheet, "Users", payload, "username");
+    } else if (action === "saveJournal") {
+      upsertRow(sheet, "Journals", payload, "id");
+    } else if (action === "deleteJournal") {
+      deleteRow(sheet, "Journals", payload.id, "id");
+    } else if (action === "deleteUser") {
+      deleteRow(sheet, "Users", payload.username, "username");
+    } else if (action === "pushAll") {
+      writeSheetBatch(sheet, "Users", payload.users, ["nama_guru", "password", "role", "kelas_diampu", "nip"], "username");
+      writeSheetBatch(sheet, "Students", payload.students, ["nama_siswa", "nisn", "kelas_id", "gender", "kontak", "catatan", "guru_wali_id"], "id");
+      writeSheetBatch(sheet, "Journals", payload.journals, ["siswa_id", "tanggal", "format_pertemuan", "topik_bahasan", "aspek_akademik", "aspek_karakter", "aspek_sosio", "aspek_disiplin", "aspek_bakat", "rencana_tindak_lanjut", "keterangan", "kelas_id", "guru_id", "rekomendasi_bk", "catatan_wali_kelas"], "id");
+    }
+    response.message = "Aksi " + action + " berhasil disinkronisasikan.";
+  } catch (err) {
+    response.status = "error";
+    response.message = err.toString();
+  }
+  return ContentService.createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function readSheetAsJSON(sheet, sheetName) {
+  var s = sheet.getSheetByName(sheetName);
+  if (!s) return sheetName === "Users" ? {} : [];
+  var rows = s.getDataRange().getValues();
+  if (rows.length < 2) return sheetName === "Users" ? {} : [];
+  var headers = rows[0];
+  var result = [];
+  var isUsers = (sheetName === "Users");
+  var userMap = {};
+
+  for (var i = 1; i < rows.length; i++) {
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = rows[i][j];
+    }
+    if (isUsers) {
+      var key = obj.username;
+      delete obj.username;
+      userMap[key] = obj;
+    } else {
+      result.push(obj);
+    }
+  }
+  return isUsers ? userMap : result;
+}
+
+function upsertRow(sheet, sheetName, data, keyName) {
+  var s = sheet.getSheetByName(sheetName) || sheet.insertSheet(sheetName);
+  var rows = s.getDataRange().getValues();
+  var headers = rows[0];
+  if (rows.length === 1 && rows[0][0] === "") {
+    headers = Object.keys(data);
+    s.appendRow(headers);
+  }
+  var keyIndex = headers.indexOf(keyName);
+  var rowIndex = -1;
+  for (var i = 1; i < rows.length; i++) {
+    if (rows[i][keyIndex] == data[keyName]) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+  var rowData = headers.map(function(h) { return data[h] !== undefined ? data[h] : ""; });
+  if (rowIndex > -1) {
+    s.getRange(rowIndex, 1, 1, headers.length).setValues([rowData]);
+  } else {
+    s.appendRow(rowData);
+  }
+}
+
+function deleteRow(sheet, sheetName, keyValue, keyName) {
+  var s = sheet.getSheetByName(sheetName);
+  if (!s) return;
+  var rows = s.getDataRange().getValues();
+  var headers = rows[0];
+  var keyIndex = headers.indexOf(keyName);
+  for (var i = 1; i < rows.length; i++) {
+    if (rows[i][keyIndex] == keyValue) {
+      s.deleteRow(i + 1);
+      break;
+    }
+  }
+}
+
+function writeSheetBatch(sheet, sheetName, data, headers, keyName) {
+  var s = sheet.getSheetByName(sheetName) || sheet.insertSheet(sheetName);
+  s.clear();
+  var fullHeaders = [keyName].concat(headers);
+  s.appendRow(fullHeaders);
+  if (!data) return;
+  
+  var rows = [];
+  if (Array.isArray(data)) {
+    data.forEach(function(item) {
+      rows.push(fullHeaders.map(function(h) { return item[h] !== undefined ? item[h] : ""; }));
+    });
+  } else {
+    Object.keys(data).forEach(function(key) {
+      var item = data[key];
+      var r = fullHeaders.map(function(h) {
+        if (h === keyName) return key;
+        return item[h] !== undefined ? item[h] : "";
+      });
+      rows.push(r);
+    });
+  }
+  if (rows.length > 0) {
+    s.getRange(2, 1, rows.length, fullHeaders.length).setValues(rows);
+  }
+}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </template>
-
-  <div id="firebase-config-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100 text-xs">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-        <h3 class="font-bold text-slate-900 font-comfortaa uppercase"><i class="fa-solid fa-cloud-arrow-up mr-1 text-brand-600"></i>Koneksi Cloud & Google Sheets (GAS)</h3>
-        <button onclick="closeFirebaseConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="space-y-4">
-        <p class="text-slate-500 leading-relaxed text-[11px]">Masukkan konfigurasi Firebase Firestore untuk integrasi multi-user real-time, dan alamat Google Apps Script (GAS) untuk mirroring otomatis data bimbingan ke Google Sheets sekolah Anda.</p>
-        
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Google Apps Script Web App URL (GAS API)</label>
-          <input type="text" id="cfg-gas-url" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none" placeholder="https://script.google.com/macros/s/xxxx/exec">
-        </div>
-
-        <div class="border-t border-slate-100 pt-3">
-          <label class="block font-bold text-slate-700 mb-1.5">Firebase Configuration JSON</label>
-          <textarea id="cfg-firebase-json" rows="6" class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] focus:ring-1 focus:ring-brand-500 outline-none" placeholder='{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "...",&#10;  "projectId": "...",&#10;  "storageBucket": "...",&#10;  "messagingSenderId": "...",&#10;  "appId": "..."&#10;}'></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-          <button onclick="closeFirebaseConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-bold">Batal</button>
-          <button onclick="saveCloudConnection()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">Simpan Koneksi</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- MODAL: Tambah/Edit Pendidik -->
   <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
@@ -914,6 +1139,79 @@
           <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">Simpan Akun</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Tambah/Edit Master Siswa (Hanya untuk Admin) -->
+  <div id="admin-siswa-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl border border-slate-100 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-bold text-slate-900 font-comfortaa uppercase" id="siswa-modal-title">Tambah Data Siswa</h3>
+        <button onclick="closeSiswaModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-modal-siswa" onsubmit="saveStudentAdmin(event)" class="space-y-4">
+        <input type="hidden" id="modal-siswa-id">
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Nama Lengkap Siswa</label>
+          <input type="text" id="modal-siswa-nama" required class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="Aditya Bagus Septiawan">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1">NIS / NISN</label>
+            <input type="text" id="modal-siswa-nisn" required class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="0012543210">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1">Jenis Kelamin</label>
+            <select id="modal-siswa-gender" required class="w-full py-2 px-3 border border-slate-200 rounded-xl bg-white">
+              <option value="L">Laki-laki (L)</option>
+              <option value="P">Perempuan (P)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Kelas Asal (Ketik Kelas Sekolah)</label>
+          <input type="text" id="modal-siswa-kelas" required class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="Kelas XI-TKJ 1">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Kontak Orang Tua / Wali</label>
+          <input type="text" id="modal-siswa-kontak" class="w-full py-2 px-3 border border-slate-200 rounded-xl" placeholder="081234567001">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Catatan Khusus / Hambatan</label>
+          <textarea id="modal-siswa-catatan" rows="3" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="Ketik catatan khusus asuhan awal jika ada..."></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeSiswaModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-bold">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">Simpan Siswa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="firebase-config-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-bold text-slate-900 font-comfortaa uppercase"><i class="fa-solid fa-cloud-arrow-up mr-1 text-brand-600"></i>Koneksi Cloud & Google Sheets (GAS)</h3>
+        <button onclick="closeFirebaseConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-4">
+        <p class="text-slate-500 leading-relaxed text-[11px]">Masukkan konfigurasi Firebase Firestore untuk integrasi multi-user real-time, dan alamat Google Apps Script (GAS) untuk mirroring otomatis data bimbingan ke Google Sheets sekolah Anda.</p>
+        
+        <div>
+          <label class="block font-bold text-slate-600 mb-1">Google Apps Script Web App URL (GAS API)</label>
+          <input type="text" id="cfg-gas-url" class="w-full py-2 px-3 border border-slate-200 rounded-xl focus:ring-1 focus:ring-brand-500 outline-none" placeholder="https://script.google.com/macros/s/xxxx/exec">
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <label class="block font-bold text-slate-700 mb-1.5">Firebase Configuration JSON</label>
+          <textarea id="cfg-firebase-json" rows="6" class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] focus:ring-1 focus:ring-brand-500 outline-none" placeholder='{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "...",&#10;  "projectId": "...",&#10;  "storageBucket": "...",&#10;  "messagingSenderId": "...",&#10;  "appId": "..."&#10;}'></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onclick="closeFirebaseConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-bold">Batal</button>
+          <button onclick="saveCloudConnection()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">Simpan Koneksi</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -978,10 +1276,8 @@
 
   <script>
     // =========================================================================
-    // 💡 REKOMENDASI UTAMA: ISI CONFIG DI SINI AGAR SEMUA PERANGKAT OTOMATIS KONEK
+    // 💡 REKOMENDASI UTAMA: CONFIG BERHASIL TERHUBUNG SECARA PERMANEN
     // =========================================================================
-    // Tempelkan konfigurasi proyek Firebase Anda di dalam objek di bawah ini.
-    // Jika diisi, guru tidak perlu lagi melakukan setup "Setup DB & GAS" di browser mereka!
     const HARDCODED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
       authDomain: "guruwali-26f33.firebaseapp.com",
@@ -993,18 +1289,19 @@
       measurementId: "G-25NMKZ3PBY"
     };
 
-    // Tempelkan URL Google Apps Script Web App Anda di bawah ini jika ada:
-    const HARDCODED_GAS_URL = "https://script.google.com/macros/s/AKfycbzTChYUar7tniWNSoAKlKWannSaLMphQI1RF5D8_6jlJANX1jh9_VvXduTcoRB14klh/exec"; 
+    const HARDCODED_GAS_URL = "https://script.google.com/macros/s/AKfycbxR70TmhqBAVbbv7oEkQMKgc19TqHwyWyv1zOk_VsvXYVwmfi9-_U5eGA3Y2ymcduqqXQ/exec"; 
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'guruwali-sanjaya';
 
     // =========================================================================
 
-    let IS_PREVIEW = true;
-    let GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTChYUar7tniWNSoAKlKWannSaLMphQI1RF5D8_6jlJANX1jh9_VvXduTcoRB14klh/exec";
+    let IS_PREVIEW = false;
+    let GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxR70TmhqBAVbbv7oEkQMKgc19TqHwyWyv1zOk_VsvXYVwmfi9-_U5eGA3Y2ymcduqqXQ/exec";
 
     let dbInstance = null;
     let currentUser = null; 
     let currentRole = 'guest'; 
     let activeView = 'dashboard';
+    let activeAdminTab = 'pendidik';
 
     let state = {
       users: {},
@@ -1044,6 +1341,14 @@
       "admin": { nama_guru: "Administrator SMKS SANJAYA", password: "admin", role: "admin", nip: "199101012020011088" }
     };
 
+    // Firebase Strict Path Helpers (Sesuai Aturan 1)
+    function getColRef(colName) {
+      return window.fBase.collection(dbInstance, 'artifacts', appId, 'public', 'data', colName);
+    }
+    function getDocRef(colName, docId) {
+      return window.fBase.doc(dbInstance, 'artifacts', appId, 'public', 'data', colName, docId);
+    }
+
     // BOOTSTRAP SYSTEM
     window.addEventListener('DOMContentLoaded', async () => {
       initDatabaseConnection();
@@ -1056,7 +1361,6 @@
       let savedConfig = localStorage.getItem('fb_config');
       let savedGas = localStorage.getItem('gas_url');
 
-      // Proteksi Fallback ke Hardcoded Config
       if (!savedConfig && HARDCODED_FIREBASE_CONFIG && HARDCODED_FIREBASE_CONFIG.apiKey) {
         savedConfig = JSON.stringify(HARDCODED_FIREBASE_CONFIG);
       }
@@ -1090,7 +1394,7 @@
       const ind = document.getElementById('sync-indicator');
       if (connected) {
         ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
-        ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span><span>Firebase & GAS Online</span>`;
+        ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span><span>Firebase Cloud Online</span>`;
       } else {
         ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
         ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span><span>Mode Demo (Lokal)</span>`;
@@ -1099,13 +1403,11 @@
 
     async function syncToGoogleSheets(actionType, dataPayload) {
       if (!GAS_WEB_APP_URL) return;
-      
       try {
         const bodyData = {
           action: actionType,
           payload: dataPayload
         };
-        
         await fetch(GAS_WEB_APP_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -1115,7 +1417,7 @@
           body: JSON.stringify(bodyData)
         });
       } catch (err) {
-        console.warn("Gagal mirroring otomatis ke Google Sheets:", err);
+        console.warn("Gagal sinkron otomatis ke Google Sheets:", err);
       }
     }
 
@@ -1134,15 +1436,15 @@
       } else {
         try {
           const db = dbInstance;
-          const userSnap = await window.fBase.getDocs(window.fBase.collection(db, "users"));
+          const userSnap = await window.fBase.getDocs(getColRef("users"));
           if (userSnap.empty) {
             // Migrasi akun awal ke Cloud
             for (const [key, val] of Object.entries(DUMMY_USERS_INITIAL)) {
-              await window.fBase.setDoc(window.fBase.doc(db, "users", key), val);
+              await window.fBase.setDoc(getDocRef("users", key), val);
             }
             // Migrasi siswa awal ke Cloud
             for (const s of DUMMY_STUDENTS_INITIAL) {
-              await window.fBase.setDoc(window.fBase.doc(db, "students", s.id), s);
+              await window.fBase.setDoc(getDocRef("students", s.id), s);
             }
           }
           await reloadCloudState();
@@ -1157,19 +1459,17 @@
     async function reloadCloudState() {
       if (IS_PREVIEW) return;
       try {
-        const db = dbInstance;
-        
-        const usersSnap = await window.fBase.getDocs(window.fBase.collection(db, "users"));
+        const usersSnap = await window.fBase.getDocs(getColRef("users"));
         const localUsers = {};
         usersSnap.forEach(d => { localUsers[d.id] = d.data(); });
         state.users = localUsers;
 
-        const studentsSnap = await window.fBase.getDocs(window.fBase.collection(db, "students"));
+        const studentsSnap = await window.fBase.getDocs(getColRef("students"));
         const localStudents = [];
         studentsSnap.forEach(d => { localStudents.push({ id: d.id, ...d.data() }); });
         state.students = localStudents;
 
-        const journalsSnap = await window.fBase.getDocs(window.fBase.collection(db, "journals"));
+        const journalsSnap = await window.fBase.getDocs(getColRef("journals"));
         const localJournals = [];
         journalsSnap.forEach(d => { localJournals.push({ id: d.id, ...d.data() }); });
         state.journals = localJournals;
@@ -1313,7 +1613,7 @@
       } else {
         try {
           const db = dbInstance;
-          const docRef = window.fBase.doc(db, "users", identifier);
+          const docRef = getDocRef("users", identifier);
           const docSnap = await window.fBase.getDoc(docRef);
 
           if (docSnap.exists() && docSnap.data().password === password) {
@@ -1356,7 +1656,6 @@
       if (currentRole === 'wali_kelas') roleLabel = `Wali Kelas ${currentUser.kelas_diampu}`;
       document.getElementById('user-display-role').innerText = roleLabel;
 
-      // 🛡️ PROTEKSI KEAMANAN: Tampilkan tombol setup database hanya kepada Admin
       const btnSync = document.getElementById('btn-sync-firebase');
       if (currentRole === 'admin') {
         btnSync.classList.remove('hidden');
@@ -1605,7 +1904,7 @@
         renderSiswaWali();
       } else {
         try {
-          await window.fBase.updateDoc(window.fBase.doc(dbInstance, "students", id), target);
+          await window.fBase.setDoc(getDocRef("students", id), target);
           await syncToGoogleSheets("saveStudent", target);
           showToast("Perubahan data siswa disinkronkan ke Cloud & Sheets.", "success");
           renderSiswaWali();
@@ -1775,12 +2074,12 @@
         initJurnalForm();
       } else {
         try {
-          await window.fBase.setDoc(window.fBase.doc(dbInstance, "journals", newLog.id), newLog);
+          await window.fBase.setDoc(getDocRef("journals", newLog.id), newLog);
           await syncToGoogleSheets("saveJournal", newLog);
           showToast("Jurnal bimbingan disinkronkan ke Cloud & Sheets.", "success");
           initJurnalForm();
         } catch (e) {
-          showToast("Gagal mengirim data bimbingan ke cloud.", "error");
+          showToast("Gagal mengirim data bimbingan.", "error");
         }
       }
 
@@ -1856,9 +2155,8 @@
         initJurnalForm();
       } else {
         try {
-          const db = dbInstance;
           const upObj = activeEvalType === 'bk' ? { rekomendasi_bk: val } : { catatan_wali_kelas: val };
-          await window.fBase.updateDoc(window.fBase.doc(db, "journals", id), upObj);
+          await window.fBase.updateDoc(getDocRef("journals", id), upObj);
           await syncToGoogleSheets("saveJournal", matchedJournal);
           showToast("Evaluasi terkirim ke Cloud & Sheets.", "success");
           closeEvalModal();
@@ -1879,7 +2177,7 @@
           initJurnalForm();
         } else {
           try {
-            await window.fBase.deleteDoc(window.fBase.doc(dbInstance, "journals", id));
+            await window.fBase.deleteDoc(getDocRef("journals", id));
             await syncToGoogleSheets("deleteJournal", { id: id });
             showToast("Jurnal dihapus dari Cloud & Sheets.", "info");
             initJurnalForm();
@@ -2022,46 +2320,318 @@
       }
     }
 
+    // =========================================================================
+    // ADMINISTRATOR ENGINE (NEW & COMPLETE MASTER DATA CONTROL)
+    // =========================================================================
     function renderAdminDashboard() {
+      // 1. Render Pendidik Table
       const users = state.users;
-      const tBody = document.getElementById('admin-wali-rows');
+      const tBodyWali = document.getElementById('admin-wali-rows');
+      if (tBodyWali) {
+        tBodyWali.innerHTML = Object.entries(users).map(([usrname, data]) => `
+          <tr class="hover:bg-slate-50 transition text-xs text-slate-700">
+            <td class="p-3 font-bold text-slate-900">${data.nama_guru}</td>
+            <td class="p-3 font-mono font-medium">${usrname}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded font-bold uppercase text-[9px] text-slate-600">
+                ${data.role === 'admin' ? 'Admin' : data.role === 'guru_bk' ? 'Guru BK' : data.role === 'wali_kelas' ? 'Wali Kelas ' + data.kelas_diampu : 'Guru Wali (Asuh)'}
+              </span>
+            </td>
+            <td class="p-3 text-slate-500">${data.password}</td>
+            <td class="p-3 text-center col-action-admin">
+              <button onclick="openEditWaliModal('${usrname}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded text-[10px] transition">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button onclick="deleteWaliAccount('${usrname}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded text-[10px] transition ml-1">
+                <i class="fa-solid fa-trash"></i> Hapus
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
 
-      tBody.innerHTML = Object.entries(users).map(([usrname, data]) => `
-        <tr class="hover:bg-slate-50 transition text-xs text-slate-700">
-          <td class="p-3 font-bold text-slate-900">${data.nama_guru}</td>
-          <td class="p-3 font-mono font-medium">${usrname}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded font-bold uppercase text-[9px] text-slate-600">
-              ${data.role === 'admin' ? 'Admin' : data.role === 'guru_bk' ? 'Guru BK' : data.role === 'wali_kelas' ? 'Wali Kelas ' + data.kelas_diampu : 'Guru Wali (Asuh)'}
-            </span>
-          </td>
-          <td class="p-3 text-slate-500">${data.password}</td>
-          <td class="p-3 text-center col-action-admin">
-            <button onclick="openEditWaliModal('${usrname}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded text-[10px] transition">
-              <i class="fa-solid fa-pen"></i> Edit
-            </button>
-            <button onclick="deleteWaliAccount('${usrname}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded text-[10px] transition ml-1">
-              <i class="fa-solid fa-trash"></i> Hapus
-            </button>
-          </td>
-        </tr>
-      `).join('');
+      // 2. Render Siswa Table
+      renderAdminStudentsTable();
 
-      // Dropdown Guru Wali
+      // Dropdown Guru Wali Mapping
       const guruSelect = document.getElementById('admin-select-guru');
-      const waliUsers = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
-      guruSelect.innerHTML = '<option value="">-- Pilih Guru Wali --</option>' + waliUsers.map(([usr, data]) => `
-        <option value="${usr}">${data.nama_guru}</option>
-      `).join('');
+      if (guruSelect) {
+        const waliUsers = Object.entries(users).filter(([_, u]) => u.role === 'guru_wali');
+        guruSelect.innerHTML = '<option value="">-- Pilih Guru Wali --</option>' + waliUsers.map(([usr, data]) => `
+          <option value="${usr}">${data.nama_guru}</option>
+        `).join('');
+      }
 
-      // Dropdown Kelas
+      // Dropdown Kelas Mapping
       const kelasSelect = document.getElementById('admin-select-kelas');
-      const uniqueClasses = [...new Set(state.students.map(s => s.kelas_id))].filter(Boolean);
-      kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + uniqueClasses.map(c => `
-        <option value="${c}">${c}</option>
-      `).join('');
+      if (kelasSelect) {
+        const uniqueClasses = [...new Set(state.students.map(s => s.kelas_id))].filter(Boolean);
+        kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + uniqueClasses.map(c => `
+          <option value="${c}">${c}</option>
+        `).join('');
+      }
 
       onAdminMappingTargetChange();
+      switchAdminTab(activeAdminTab);
+    }
+
+    function renderAdminStudentsTable() {
+      const rowsSiswa = document.getElementById('admin-siswa-rows');
+      if (!rowsSiswa) return;
+
+      const students = state.students;
+      if (students.length === 0) {
+        rowsSiswa.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-slate-400">Belum ada siswa terdaftar. Gunakan Google Sheets untuk impor cepat!</td></tr>`;
+        return;
+      }
+
+      students.sort((a,b) => a.nama_siswa.localeCompare(b.nama_siswa));
+
+      rowsSiswa.innerHTML = students.map(s => {
+        const asuhGuruName = s.guru_wali_id && state.users[s.guru_wali_id] ? state.users[s.guru_wali_id].nama_guru : '<span class="text-rose-500 font-semibold italic">Belum Dipetakan</span>';
+        return `
+          <tr class="hover:bg-slate-50 transition text-xs">
+            <td class="p-3 font-bold text-slate-900">${s.nama_siswa}</td>
+            <td class="p-3 font-mono text-slate-600">${s.nisn || '-'}</td>
+            <td class="p-3 font-semibold text-slate-700">${s.kelas_id || '-'}</td>
+            <td class="p-3 text-center font-bold text-slate-500">${s.gender || 'L'}</td>
+            <td class="p-3 font-medium text-slate-700">${s.kontak || '-'}</td>
+            <td class="p-3">${asuhGuruName}</td>
+            <td class="p-3 text-center">
+              <button onclick="openEditSiswaModal('${s.id}')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded text-[10px] transition">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button onclick="deleteStudentAdmin('${s.id}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded text-[10px] transition ml-1">
+                <i class="fa-solid fa-trash"></i> Hapus
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminSiswaTable() {
+      const q = document.getElementById('admin-siswa-search-table').value.toLowerCase();
+      const rows = document.querySelectorAll('#admin-siswa-rows tr');
+      rows.forEach(r => {
+        if (r.innerText.toLowerCase().includes(q)) {
+          r.classList.remove('hidden');
+        } else {
+          r.classList.add('hidden');
+        }
+      });
+    }
+
+    // Tab Switcher inside Admin
+    function switchAdminTab(tabId) {
+      activeAdminTab = tabId;
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.remove('border-slate-800', 'text-slate-800');
+        btn.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      const currentPanel = document.getElementById(`admin-panel-${tabId}`);
+      const currentBtn = document.getElementById(`admin-tab-btn-${tabId}`);
+
+      if (currentPanel) currentPanel.classList.remove('hidden');
+      if (currentBtn) {
+        currentBtn.classList.add('border-slate-800', 'text-slate-800');
+        currentBtn.classList.remove('border-transparent', 'text-slate-400');
+      }
+    }
+
+    // Google Sheets Integration (Tarik & Kirim Data Dua Arah)
+    async function pullDataFromGoogleSheets() {
+      if (!GAS_WEB_APP_URL) {
+        showToast("Konfigurasi URL Google Apps Script (GAS) belum dipasang!", "error");
+        return;
+      }
+      showToast("Menghubungi Google Sheets untuk menarik data...", "info");
+      try {
+        const url = GAS_WEB_APP_URL + "?action=fetchBackupData";
+        const response = await fetch(url);
+        const resJson = await response.json();
+
+        if (resJson.status === "success" && resJson.data) {
+          const d = resJson.data;
+          
+          if (d.users && Object.keys(d.users).length > 0) {
+            state.users = d.users;
+            if (!IS_PREVIEW) {
+              for (const [usr, val] of Object.entries(d.users)) {
+                await window.fBase.setDoc(getDocRef("users", usr), val);
+              }
+            } else {
+              localStorage.setItem('jurnal_wali_users', JSON.stringify(state.users));
+            }
+          }
+
+          if (d.students && d.students.length > 0) {
+            state.students = d.students;
+            if (!IS_PREVIEW) {
+              for (const s of d.students) {
+                await window.fBase.setDoc(getDocRef("students", s.id), s);
+              }
+            } else {
+              localStorage.setItem('jurnal_wali_students', JSON.stringify(state.students));
+            }
+          }
+
+          if (d.journals && d.journals.length > 0) {
+            state.journals = d.journals;
+            if (!IS_PREVIEW) {
+              for (const j of d.journals) {
+                await window.fBase.setDoc(getDocRef("journals", j.id), j);
+              }
+            } else {
+              localStorage.setItem('jurnal_wali_logs', JSON.stringify(state.journals));
+            }
+          }
+
+          showToast("Berhasil menarik & mensinkronisasikan seluruh data dari Google Sheets!", "success");
+          renderAdminDashboard();
+        } else {
+          showToast("Koneksi berhasil tetapi format sheet tidak sesuai (Header tidak cocok).", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Sinkronisasi gagal. Pastikan Deploy GAS di-set 'Anyone' dan URL-nya benar!", "error");
+      }
+    }
+
+    async function pushDataToGoogleSheets() {
+      if (!GAS_WEB_APP_URL) {
+        showToast("Konfigurasi URL GAS belum dipasang!", "error");
+        return;
+      }
+      showToast("Mengirim salinan database ke Google Sheets...", "info");
+      try {
+        await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: "pushAll",
+            payload: {
+              users: state.users,
+              students: state.students,
+              journals: state.journals
+            }
+          })
+        });
+        showToast("Ekspor berhasil! Seluruh data terkirim & tercermin di Google Sheets Anda.", "success");
+      } catch (err) {
+        showToast("Gagal mengirim data ekspor.", "error");
+      }
+    }
+
+    function copyAppsScriptCode() {
+      const area = document.getElementById('apps-script-code-area');
+      area.select();
+      document.execCommand('copy');
+      showToast("Kode Google Apps Script disalin ke Clipboard!", "success");
+    }
+
+    // MODAL CONTROL: MASTER SISWA (Admin)
+    function openAddSiswaModal() {
+      document.getElementById('siswa-modal-title').innerText = "Tambah Data Siswa Baru";
+      document.getElementById('modal-siswa-id').value = "";
+      document.getElementById('modal-siswa-nama').value = "";
+      document.getElementById('modal-siswa-nisn').value = "";
+      document.getElementById('modal-siswa-gender').value = "L";
+      document.getElementById('modal-siswa-kelas').value = "";
+      document.getElementById('modal-siswa-kontak').value = "";
+      document.getElementById('modal-siswa-catatan').value = "";
+      document.getElementById('admin-siswa-modal').classList.remove('hidden');
+    }
+
+    function openEditSiswaModal(id) {
+      const s = state.students.find(x => x.id === id);
+      if (!s) return;
+
+      document.getElementById('siswa-modal-title').innerText = "Edit Data Siswa";
+      document.getElementById('modal-siswa-id').value = s.id;
+      document.getElementById('modal-siswa-nama').value = s.nama_siswa;
+      document.getElementById('modal-siswa-nisn').value = s.nisn || "";
+      document.getElementById('modal-siswa-gender').value = s.gender || "L";
+      document.getElementById('modal-siswa-kelas').value = s.kelas_id || "";
+      document.getElementById('modal-siswa-kontak').value = s.kontak || "";
+      document.getElementById('modal-siswa-catatan').value = s.catatan || "";
+      document.getElementById('admin-siswa-modal').classList.remove('hidden');
+    }
+
+    function closeSiswaModal() {
+      document.getElementById('admin-siswa-modal').classList.add('hidden');
+    }
+
+    async function saveStudentAdmin(e) {
+      e.preventDefault();
+      const id = document.getElementById('modal-siswa-id').value || "std_" + Date.now();
+      const nama = document.getElementById('modal-siswa-nama').value;
+      const nisn = document.getElementById('modal-siswa-nisn').value;
+      const gender = document.getElementById('modal-siswa-gender').value;
+      const kelas = document.getElementById('modal-siswa-kelas').value;
+      const kontak = document.getElementById('modal-siswa-kontak').value;
+      const catatan = document.getElementById('modal-siswa-catatan').value;
+
+      const existing = state.students.find(x => x.id === id);
+      const gwId = existing ? existing.guru_wali_id : "";
+
+      const studentObj = {
+        id: id,
+        nama_siswa: nama,
+        nisn: nisn,
+        gender: gender,
+        kelas_id: kelas,
+        kontak: kontak,
+        catatan: catatan,
+        guru_wali_id: gwId
+      };
+
+      if (existing) {
+        const idx = state.students.findIndex(x => x.id === id);
+        state.students[idx] = studentObj;
+      } else {
+        state.students.push(studentObj);
+      }
+
+      if (IS_PREVIEW) {
+        localStorage.setItem('jurnal_wali_students', JSON.stringify(state.students));
+        showToast("Siswa berhasil disimpan lokal.", "success");
+        closeSiswaModal();
+        renderAdminDashboard();
+      } else {
+        try {
+          await window.fBase.setDoc(getDocRef("students", id), studentObj);
+          await syncToGoogleSheets("saveStudent", studentObj);
+          showToast("Siswa disinkronkan ke Cloud & Sheets.", "success");
+          closeSiswaModal();
+          renderAdminDashboard();
+        } catch (e) {
+          showToast("Gagal menyimpan data ke Cloud.", "error");
+        }
+      }
+    }
+
+    async function deleteStudentAdmin(id) {
+      showConfirmModal("Yakin ingin menghapus data siswa ini secara permanen?", async () => {
+        state.students = state.students.filter(x => x.id !== id);
+        if (IS_PREVIEW) {
+          localStorage.setItem('jurnal_wali_students', JSON.stringify(state.students));
+          showToast("Siswa dihapus secara lokal.", "info");
+          renderAdminDashboard();
+        } else {
+          try {
+            await window.fBase.deleteDoc(getDocRef("students", id));
+            await syncToGoogleSheets("deleteStudent", { id: id });
+            showToast("Siswa dihapus dari Cloud & Sheets.", "info");
+            renderAdminDashboard();
+          } catch (e) {
+            showToast("Gagal menghapus data di Cloud.", "error");
+          }
+        }
+      });
     }
 
     function onAdminMappingTargetChange() {
@@ -2152,8 +2722,7 @@
         onAdminMappingTargetChange();
       } else {
         try {
-          const db = dbInstance;
-          await window.fBase.updateDoc(window.fBase.doc(db, "students", studentId), { guru_wali_id: guruId });
+          await window.fBase.updateDoc(getDocRef("students", studentId), { guru_wali_id: guruId });
           await syncToGoogleSheets("saveStudent", state.students[idx]);
           showToast("Siswa disinkronkan ke Guru Wali di Cloud & Sheets.", "success");
           onAdminMappingTargetChange();
@@ -2175,8 +2744,7 @@
         onAdminMappingTargetChange();
       } else {
         try {
-          const db = dbInstance;
-          await window.fBase.updateDoc(window.fBase.doc(db, "students", studentId), { guru_wali_id: "" });
+          await window.fBase.updateDoc(getDocRef("students", studentId), { guru_wali_id: "" });
           await syncToGoogleSheets("saveStudent", state.students[idx]);
           showToast("Siswa dilepas dari Cloud & Sheets.", "info");
           onAdminMappingTargetChange();
@@ -2255,8 +2823,7 @@
         closeModal();
       } else {
         try {
-          const db = dbInstance;
-          await window.fBase.setDoc(window.fBase.doc(db, "users", username), newUserObj);
+          await window.fBase.setDoc(getDocRef("users", username), newUserObj);
           await syncToGoogleSheets("saveUser", { username: username, ...newUserObj });
           showToast("Akun diunggah ke Cloud & Sheets.", "success");
           renderAdminDashboard();
@@ -2276,7 +2843,7 @@
           renderAdminDashboard();
         } else {
           try {
-            await window.fBase.deleteDoc(window.fBase.doc(dbInstance, "users", username));
+            await window.fBase.deleteDoc(getDocRef("users", username));
             await syncToGoogleSheets("deleteUser", { username: username });
             showToast("Akun Cloud & Sheets dihapus.", "info");
             renderAdminDashboard();
@@ -2348,6 +2915,20 @@
       }
       confirmCallback = null;
     });
+
+    // GLOBALS BINDING FOR ONCLICK EVENT
+    window.openAddWaliModal = openAddWaliModal;
+    window.openEditWaliModal = openEditWaliModal;
+    window.deleteWaliAccount = deleteWaliAccount;
+    window.openAddSiswaModal = openAddSiswaModal;
+    window.openEditSiswaModal = openEditSiswaModal;
+    window.deleteStudentAdmin = deleteStudentAdmin;
+    window.switchAdminTab = switchAdminTab;
+    window.pullDataFromGoogleSheets = pullDataFromGoogleSheets;
+    window.pushDataToGoogleSheets = pushDataToGoogleSheets;
+    window.copyAppsScriptCode = copyAppsScriptCode;
+    window.closeSiswaModal = closeSiswaModal;
+    window.saveStudentAdmin = saveStudentAdmin;
   </script>
 
   <!-- PWA Service Worker -->
@@ -2355,7 +2936,7 @@
     if ('serviceWorker' in navigator) {
       try {
         const swBlobCode = `
-          const CACHE_NAME = 'jurnal-sanjaya-v7';
+          const CACHE_NAME = 'jurnal-sanjaya-v8';
           self.addEventListener('fetch', event => {
             event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
           });
