@@ -162,7 +162,7 @@
 
       <div class="grid grid-cols-4 gap-1 border-b border-slate-100 mb-6 text-[10px] text-center font-bold">
         <button id="tab-login-guru" onclick="switchAuthTab('guru')" class="pb-2.5 text-brand-600 border-b-2 border-brand-600">
-          Guru Wali
+          gURU Wali
         </button>
         <button id="tab-login-walikelas" onclick="switchAuthTab('walikelas')" class="pb-2.5 text-slate-400 border-b-2 border-transparent">
           Wali Kelas
@@ -1129,14 +1129,15 @@
           <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
             <i class="fa-solid fa-file-excel text-emerald-600 text-xs"></i> 1. Koneksi Google Sheets (URL_GAS)
           </h4>
-          <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/xxxx/exec" class="w-full py-2 px-3 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-mono text-[11px]">
+          <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/AKfycbw8GaJw1q0eudRvdiX5VVbjA_un4keTHHxJHQqGwCzclY8yNfDoA_H1GPCHhKEZrhBK3w/exec" class="w-full py-2 px-3 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-mono text-[11px]">
         </div>
         <hr class="border-slate-150">
         <div>
           <h4 class="font-extrabold text-slate-800 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
             <i class="fa-solid fa-fire text-orange-500 text-xs"></i> 2. Database Firebase Firestore
           </h4>
-          <textarea id="config-firebase-json" rows="6" placeholder='{ "apiKey": "AIzaSy...", "projectId": "..." }' class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] outline-none focus:ring-1 focus:ring-brand-500"></textarea>
+          <textarea id="config-firebase-json" rows="6" placeholder='{"apiKey":"AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0","authDomain":"guruwali-26f33.firebaseapp.com","projectId":"guruwali-26f33","storageBucket":"guruwali-26f33.firebasestorage.app","messagingSenderId":"240614016986","appId":"1:240614016986:web:7f3073014e1ffb915ae2e3"}
+' class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] outline-none focus:ring-1 focus:ring-brand-500"></textarea>
         </div>
         
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-150">
@@ -1179,7 +1180,7 @@
   <script>
     let IS_PREVIEW = false;
     let HAS_GAS = false;
-    let gasUrl = "https://script.google.com/macros/s/AKfycbwGWUVuhBh_W5YSnnPq15-KJxv2NW5lylZnQDW6PwqhCxAKFxa_nxg_mv4N_bSZsBrCFw/exec";
+    let gasUrl = "https://script.google.com/macros/s/AKfycbw8GaJw1q0eudRvdiX5VVbjA_un4keTHHxJHQqGwCzclY8yNfDoA_H1GPCHhKEZrhBK3w/exec";
     
     let firebaseConfig = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
@@ -1210,11 +1211,11 @@
     ];
 
     const DUMMY_USERS_INITIAL = {
-      "wali_elisabeth": { nama_guru: "Petrus Bala, S.Kom.", password: "password123", role: "guru_wali", nip: "198305142010012055" },
-      "wali_emanuel": { nama_guru: "Maria G. Reka, S.Pd.", password: "password123", role: "guru_wali", nip: "197811122008011044" },
-      "walas_linB": { nama_guru: "Fransiskus Nado, S.Pd.", password: "password123", role: "wali_kelas", kelas_diampu: "Kelas XI-TKJ 1", nip: "198501012012121002" },
-      "bk_marthen": { nama_guru: "Elisabeth Meo, S.Psi.", password: "password123", role: "guru_bk", nip: "199004052015032001" },
-      "admin": { nama_guru: "Administrator SMKS SANJAYA", password: "admin212", role: "admin", nip: "199101012020011088" }
+      "wali_petrus": { nama_guru: "Petrus Bala, S.Kom.", password: "password123", role: "guru_wali", nip: "198305142010012055" },
+      "wali_maria": { nama_guru: "Maria G. Reka, S.Pd.", password: "password123", role: "guru_wali", nip: "197811122008011044" },
+      "walikelas_xi": { nama_guru: "Fransiskus Nado, S.Pd.", password: "password123", role: "wali_kelas", kelas_diampu: "Kelas XI-TKJ 1", nip: "198501012012121002" },
+      "bk_sanjaya": { nama_guru: "Elisabeth Meo, S.Psi.", password: "password123", role: "guru_bk", nip: "199004052015032001" },
+      "admin": { nama_guru: "Administrator SMKS SANJAYA", password: "admin", role: "admin", nip: "199101012020011088" }
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -1577,7 +1578,7 @@
       } else if (tab === 'bk') {
         tBk.className = "pb-2.5 text-brand-600 border-b-2 border-brand-600 font-bold";
         lblUser.innerText = "Username / NIP Guru BK";
-        inputIdent.placeholder = "Contoh: bk_marthen";
+        inputIdent.placeholder = "Contoh: bk_sanjaya";
       } else {
         tAdmin.className = "pb-2.5 text-brand-600 border-b-2 border-brand-600 font-bold";
         lblUser.innerText = "Username / ID Admin";
