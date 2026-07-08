@@ -262,12 +262,12 @@
           <h2 class="font-bold text-slate-950 text-base font-comfortaa" id="header-title">Beranda</h2>
         </div>
         <div class="flex items-center space-x-2">
-          <div id="sync-indicator" class="flex items-center space-x-1 px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold">
+          <div id="sync-indicator" class="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold">
             <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
             <span>Demo Mode</span>
           </div>
-          <button id="btn-sync-firebase" onclick="toggleFirebaseMode()" class="no-print px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[9px] font-bold flex items-center gap-1 text-slate-700 transition">
-            <i class="fa-solid fa-plug"></i> <span id="sync-btn-text">Connect Cloud</span>
+          <button id="btn-sync-cloud-settings" onclick="openCloudConfigModal()" class="no-print px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-[9px] font-bold flex items-center gap-1 text-slate-700 transition">
+            <i class="fa-solid fa-sliders"></i> <span>Setup Cloud & GAS</span>
           </button>
         </div>
       </header>
@@ -520,9 +520,9 @@
       <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm print-page text-xs leading-relaxed" id="printable-report-sheet">
         <!-- Formal Heading -->
         <div class="text-center border-b-4 border-slate-900 pb-3 mb-5">
-          <h2 class="text-base font-extrabold uppercase text-slate-900 tracking-wide font-comfortaa">FORMAT PELAPORAN SEMESTER GURU WALI</h2>
+          <h2 class="text-base font-extrabold uppercase text-slate-900 tracking-wide font-comfortaa">LAPORAN SEMESTER GURU WALI</h2>
           <h3 class="text-sm font-bold text-slate-700">SMKS SANJAYA BAJAWA</h3>
-          <p class="text-[9px] text-slate-500 mt-1">NPSN: 50302966 • TA 2026/2027 • Kurikulum Merdeka</p>
+          <p class="text-[9px] text-slate-500 mt-1">NPSN: 50302966 • TA 2026/2027 • Kurikulum MERDEKA</p>
         </div>
 
         <!-- Identitas Pelaporan -->
@@ -659,7 +659,7 @@
               <li>Permendiknas Nomor 11 Tahun 2025 tentang Pemenuhan Beban Kerja Guru.</li>
               <li>Pasal 9 ayat (1)-(5): Penguasaan dan ruang lingkup tugas Guru Wali.</li>
               <li>Pasal 14: Efektivitas tugas Guru Wali setara 2 JP per minggu.</li>
-              <li>Pasal 17 dan 18: Penetapan, pelaksanaan, dan penghitungan beban kerja.</li>
+              <li>Pasal 17 and 18: Penetapan, pelaksanaan, dan penghitungan beban kerja.</li>
             </ol>
           </div>
 
@@ -957,6 +957,38 @@
     </div>
   </div>
 
+  <!-- CLOUD CONFIGURATION MODAL (UPDATED WITH GAS URL) -->
+  <div id="cloud-config-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-100 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-bold text-slate-900 font-comfortaa uppercase"><i class="fa-solid fa-cloud-arrow-up mr-1 text-brand-600"></i>Pengaturan Koneksi Cloud & GAS</h3>
+        <button onclick="closeCloudConfigModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-sm"></i></button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <h4 class="font-bold text-brand-900 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i> 1. Koneksi Google Sheets (URL_GAS)
+          </h4>
+          <p class="text-slate-500 text-[10px] mb-2">Masukkan URL Google Apps Script Web App untuk mengirim data jurnal secara otomatis ke Spreadsheet sekolah.</p>
+          <input type="text" id="config-gas-url" placeholder="https://script.google.com/macros/s/xxxx/exec" class="w-full py-2 px-3 border border-slate-200 rounded-xl outline-none focus:ring-1 focus:ring-brand-500 font-mono text-[11px]">
+        </div>
+        <hr class="border-slate-100">
+        <div>
+          <h4 class="font-bold text-brand-900 uppercase text-[10px] tracking-wide mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-fire text-amber-500"></i> 2. Database Firebase Firestore
+          </h4>
+          <p class="text-slate-500 text-[10px] mb-2">Gunakan config JSON Firebase Firestore untuk login antar-guru secara langsung (online).</p>
+          <textarea id="config-firebase-json" rows="6" placeholder='{ "apiKey": "AIzaSy...", "projectId": "..." }' class="w-full py-2 px-3 border border-slate-200 rounded-xl font-mono text-[10px] outline-none focus:ring-1 focus:ring-brand-500"></textarea>
+        </div>
+        
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeCloudConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-bold">Batal</button>
+          <button type="button" onclick="saveCloudSettings()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold">Simpan Pengaturan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast-notification" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl max-w-sm text-xs">
     <span id="toast-icon" class="text-base"></span>
@@ -991,7 +1023,9 @@
 
   <!-- APP CONTROLLER JAVASCRIPT -->
   <script>
-    let IS_PREVIEW = false;
+    let IS_PREVIEW = true;
+    let HAS_GAS = false;
+    let gasUrl = "https://script.google.com/macros/s/AKfycby8qek8VeGjkGE_w5t9QDmgq23qM2Qo7-DD0bfECvdoF0Ok7iv7b4Me-KfB2h7-KyF79A/exec";
     
     let firebaseConfig = {
       apiKey: "AIzaSyBp_lXUKvR9bAooNe_VNCIc-5Es9LI5W-0",
@@ -1053,48 +1087,35 @@
     });
 
     async function autoSetupDatabase() {
-      if (IS_PREVIEW) {
-        // Logika Auto-Heal: Memastikan semua akun dummy (terutama admin) selalu terdaftar
-        let users = JSON.parse(localStorage.getItem('jurnal_wali_users'));
-        if (!users) {
-          users = DUMMY_USERS_INITIAL;
-        } else {
-          for (const [key, val] of Object.entries(DUMMY_USERS_INITIAL)) {
-            if (!users[key]) {
-              users[key] = val;
-            }
-          }
-        }
-        localStorage.setItem('jurnal_wali_users', JSON.stringify(users));
-
-        if (!localStorage.getItem('jurnal_wali_students')) {
-          localStorage.setItem('jurnal_wali_students', JSON.stringify(DUMMY_STUDENTS_INITIAL));
-        }
-        if (!localStorage.getItem('jurnal_wali_logs')) {
-          localStorage.setItem('jurnal_wali_logs', JSON.stringify([]));
-        }
-        loadLocalData();
+      // Auto-Heal: Memastikan semua akun dummy (terutama admin) selalu terdaftar
+      let users = JSON.parse(localStorage.getItem('jurnal_wali_users'));
+      if (!users) {
+        users = DUMMY_USERS_INITIAL;
       } else {
-        try {
-          const db = dbInstance;
-          const userSnap = await window.fBase.getDocs(window.fBase.collection(db, "users"));
-          if (userSnap.empty) {
-            for (const [key, val] of Object.entries(DUMMY_USERS_INITIAL)) {
-              await window.fBase.setDoc(window.fBase.doc(db, "users", key), val);
-            }
-            for (const s of DUMMY_STUDENTS_INITIAL) {
-              await window.fBase.setDoc(window.fBase.doc(db, "students", s.id), s);
-            }
+        for (const [key, val] of Object.entries(DUMMY_USERS_INITIAL)) {
+          if (!users[key]) {
+            users[key] = val;
           }
-        } catch (e) {
-          console.warn("Koneksi Firebase gagal, melanjutkan dengan Local Storage fallback.", e);
         }
       }
+      localStorage.setItem('jurnal_wali_users', JSON.stringify(users));
+
+      if (!localStorage.getItem('jurnal_wali_students')) {
+        localStorage.setItem('jurnal_wali_students', JSON.stringify(DUMMY_STUDENTS_INITIAL));
+      }
+      if (!localStorage.getItem('jurnal_wali_logs')) {
+        localStorage.setItem('jurnal_wali_logs', JSON.stringify([]));
+      }
+      loadLocalData();
     }
 
     function initStorageMode() {
       const savedConfig = localStorage.getItem('fb_config');
       const isFbActive = localStorage.getItem('fb_active') === 'true';
+      
+      // Load Google Sheets GAS Configuration
+      gasUrl = localStorage.getItem('gas_url') || "";
+      HAS_GAS = gasUrl.length > 0;
 
       if (isFbActive && savedConfig) {
         try {
@@ -1103,49 +1124,79 @@
           dbInstance = window.fBase.getFirestore(app);
           authInstance = window.fBase.getAuth(app);
           IS_PREVIEW = false;
-          updateSyncIndicator(true);
         } catch (e) {
           console.error("Gagal inisiasi Firebase: ", e);
           IS_PREVIEW = true;
-          updateSyncIndicator(false);
         }
       } else {
         IS_PREVIEW = true;
-        updateSyncIndicator(false);
       }
+      
+      updateSyncIndicator();
     }
 
-    function updateSyncIndicator(connected) {
+    function updateSyncIndicator() {
       const ind = document.getElementById('sync-indicator');
-      const btn = document.getElementById('sync-btn-text');
-      if (connected) {
+      
+      let statusStr = "";
+      if (!IS_PREVIEW && HAS_GAS) {
+        ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+        ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span><span>Firebase & GAS Online</span>`;
+      } else if (!IS_PREVIEW) {
         ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
         ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span><span>Firebase Online</span>`;
-        btn.innerText = "Disconnect Cloud";
+      } else if (HAS_GAS) {
+        ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200";
+        ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span><span>GAS Sheets Online</span>`;
       } else {
         ind.className = "flex items-center space-x-1.5 text-[9px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
         ind.innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span><span>Mode Demo (Lokal)</span>`;
-        btn.innerText = "Connect Cloud";
       }
     }
 
-    function toggleFirebaseMode() {
-      if (!IS_PREVIEW) {
-        localStorage.setItem('fb_active', 'false');
-        location.reload();
+    function openCloudConfigModal() {
+      document.getElementById('config-gas-url').value = localStorage.getItem('gas_url') || "";
+      
+      const savedFb = localStorage.getItem('fb_config');
+      document.getElementById('config-firebase-json').value = savedFb ? JSON.stringify(JSON.parse(savedFb), null, 2) : "";
+      
+      document.getElementById('cloud-config-modal').classList.remove('hidden');
+    }
+
+    function closeCloudConfigModal() {
+      document.getElementById('cloud-config-modal').classList.add('hidden');
+    }
+
+    function saveCloudSettings() {
+      const gUrl = document.getElementById('config-gas-url').value.trim();
+      const fbStr = document.getElementById('config-firebase-json').value.trim();
+
+      // Save GAS URL if present
+      if (gUrl) {
+        localStorage.setItem('gas_url', gUrl);
       } else {
-        const configStr = prompt("Masukkan Firebase Config JSON Anda untuk menyambungkan server database:", JSON.stringify(firebaseConfig));
-        if (configStr) {
-          try {
-            const parsed = JSON.parse(configStr);
-            localStorage.setItem('fb_config', JSON.stringify(parsed));
-            localStorage.setItem('fb_active', 'true');
-            location.reload();
-          } catch (e) {
-            showToast("Format Config JSON tidak valid!", "error");
-          }
-        }
+        localStorage.removeItem('gas_url');
       }
+
+      // Save Firebase Config if present
+      if (fbStr) {
+        try {
+          const parsed = JSON.parse(fbStr);
+          localStorage.setItem('fb_config', JSON.stringify(parsed));
+          localStorage.setItem('fb_active', 'true');
+        } catch (e) {
+          showToast("Format JSON Firebase salah!", "error");
+          return;
+        }
+      } else {
+        localStorage.removeItem('fb_config');
+        localStorage.removeItem('fb_active');
+      }
+
+      showToast("Pengaturan Cloud disimpan. Memuat ulang aplikasi...", "success");
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
     }
 
     function loadLocalData() {
@@ -1223,39 +1274,18 @@
       const errorMsg = document.getElementById('auth-error-msg');
       errorMsg.classList.add('hidden');
 
-      if (IS_PREVIEW) {
-        const users = JSON.parse(localStorage.getItem('jurnal_wali_users')) || DUMMY_USERS_INITIAL;
-        const matchedUser = users[identifier];
+      const users = JSON.parse(localStorage.getItem('jurnal_wali_users')) || DUMMY_USERS_INITIAL;
+      const matchedUser = users[identifier];
 
-        if (matchedUser && matchedUser.password === password) {
-          currentUser = { ...matchedUser, username: identifier };
-          currentRole = matchedUser.role;
-          
-          localStorage.setItem('jurnal_session', JSON.stringify({ user: currentUser, role: currentRole }));
-          showToast(`Selamat datang, ${currentUser.nama_guru}!`, "success");
-          showAppShell();
-        } else {
-          errorMsg.classList.remove('hidden');
-        }
+      if (matchedUser && matchedUser.password === password) {
+        currentUser = { ...matchedUser, username: identifier };
+        currentRole = matchedUser.role;
+        
+        localStorage.setItem('jurnal_session', JSON.stringify({ user: currentUser, role: currentRole }));
+        showToast(`Selamat datang, ${currentUser.nama_guru}!`, "success");
+        showAppShell();
       } else {
-        try {
-          const db = dbInstance;
-          const docRef = window.fBase.doc(db, "users", identifier);
-          const docSnap = await window.fBase.getDoc(docRef);
-
-          if (docSnap.exists() && docSnap.data().password === password) {
-            const userData = docSnap.data();
-            currentUser = { ...userData, username: identifier };
-            currentRole = userData.role;
-            localStorage.setItem('jurnal_session', JSON.stringify({ user: currentUser, role: currentRole }));
-            showToast(`Berhasil masuk ke cloud server!`, "success");
-            showAppShell();
-          } else {
-            throw new Error();
-          }
-        } catch (err) {
-          errorMsg.classList.remove('hidden');
-        }
+        errorMsg.classList.remove('hidden');
       }
     }
 
@@ -1752,7 +1782,8 @@
       if (IS_PREVIEW) {
         logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
       } else {
-        // loaded logs
+        // loaded logs from state
+        logs = state.journals;
       }
       
       const match = logs.find(l => l.id === journalId);
@@ -1790,17 +1821,19 @@
       const id = document.getElementById('eval-journal-id').value;
       const val = document.getElementById('eval-input-text').value;
 
-      if (IS_PREVIEW) {
-        const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
-        const idx = logs.findIndex(l => l.id === id);
-        if (idx !== -1) {
-          if (activeEvalType === 'bk') {
-            logs[idx].rekomendasi_bk = val;
-          } else {
-            logs[idx].catatan_wali_kelas = val;
-          }
-          localStorage.setItem('jurnal_wali_logs', JSON.stringify(logs));
+      // Local storage save
+      const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
+      const idx = logs.findIndex(l => l.id === id);
+      if (idx !== -1) {
+        if (activeEvalType === 'bk') {
+          logs[idx].rekomendasi_bk = val;
+        } else {
+          logs[idx].catatan_wali_kelas = val;
         }
+        localStorage.setItem('jurnal_wali_logs', JSON.stringify(logs));
+      }
+
+      if (IS_PREVIEW) {
         showToast("Evaluasi kolaboratif disimpan.", "success");
         closeEvalModal();
         initJurnalForm();
@@ -1820,6 +1853,11 @@
         } catch (e) {
           showToast("Gagal mengunggah evaluasi.", "error");
         }
+      }
+
+      // Sync to Google Sheets if GAS URL is available
+      if (HAS_GAS && idx !== -1) {
+        mirrorToGoogleSheets(logs[idx]);
       }
     }
 
@@ -1852,22 +1890,29 @@
         catatan_wali_kelas: ""
       };
 
-      if (IS_PREVIEW) {
-        const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
-        logs.push(newLog);
-        localStorage.setItem('jurnal_wali_logs', JSON.stringify(logs));
-        showToast("Jurnal bimbingan berhasil disimpan.", "success");
-        initJurnalForm();
-      } else {
+      // 1. Simpan Lokal (Selalu lakukan sebagai cadangan aman)
+      const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
+      logs.push(newLog);
+      localStorage.setItem('jurnal_wali_logs', JSON.stringify(logs));
+
+      // 2. Simpan Firebase (jika aktif)
+      if (!IS_PREVIEW) {
         try {
           await window.fBase.setDoc(window.fBase.doc(dbInstance, "journals", newLog.id), newLog);
-          showToast("Jurnal disinkronkan ke Cloud.", "success");
-          initJurnalForm();
+          showToast("Jurnal disinkronkan ke Cloud Firebase.", "success");
         } catch (e) {
           showToast("Gagal mengirim data ke Firestore.", "error");
         }
+      } else {
+        showToast("Jurnal bimbingan disimpan lokal.", "success");
       }
 
+      // 3. Mirroring Google Sheets (jika aktif)
+      if (HAS_GAS) {
+        mirrorToGoogleSheets(newLog);
+      }
+
+      // Reset form
       document.getElementById('jurnal-siswa-search').value = '';
       document.getElementById('jurnal-siswa-id').value = '';
       document.getElementById('jurnal-topik').value = '';
@@ -1878,15 +1923,56 @@
       document.getElementById('aspek-bakat').value = '';
       document.getElementById('jurnal-rtl').value = '';
       document.getElementById('jurnal-keterangan').value = '';
+      
+      initJurnalForm();
+    }
+
+    function mirrorToGoogleSheets(logData) {
+      if (!gasUrl) return;
+
+      const payload = {
+        action: "saveJournal",
+        id: logData.id,
+        nama_siswa: getStudentName(logData.siswa_id),
+        tanggal: logData.tanggal,
+        format_pertemuan: logData.format_pertemuan,
+        topik_bahasan: logData.topik_bahasan,
+        rencana_tindak_lanjut: logData.rencana_tindak_lanjut,
+        aspek_akademik: logData.aspek_akademik || "",
+        aspek_karakter: logData.aspek_karakter || "",
+        aspek_sosio: logData.aspek_sosio || "",
+        aspek_disiplin: logData.aspek_disiplin || "",
+        aspek_bakat: logData.aspek_bakat || "",
+        rekomendasi_bk: logData.rekomendasi_bk || "",
+        catatan_wali_kelas: logData.catatan_wali_kelas || "",
+        petugas: currentUser.nama_guru
+      };
+
+      fetch(gasUrl, {
+        method: "POST",
+        mode: "no-cors", // Untuk melewati pembatasan CORS standard Google Apps Script
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        showToast("Sinkronisasi Google Sheets Berhasil! 🌐", "success");
+      })
+      .catch(err => {
+        console.error("Gagal Mirroring ke Google Sheets: ", err);
+      });
     }
 
     function deleteJurnalPertemuan(id) {
       showConfirmModal("Yakin ingin menghapus jurnal ini secara permanen?", async () => {
+        // Hapus Lokal
+        const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
+        const filtered = logs.filter(l => l.id !== id);
+        localStorage.setItem('jurnal_wali_logs', JSON.stringify(filtered));
+
         if (IS_PREVIEW) {
-          const logs = JSON.parse(localStorage.getItem('jurnal_wali_logs')) || [];
-          const filtered = logs.filter(l => l.id !== id);
-          localStorage.setItem('jurnal_wali_logs', JSON.stringify(filtered));
-          showToast("Record jurnal bimbingan dihapus.", "info");
+          showToast("Record bimbingan dihapus lokal.", "info");
           initJurnalForm();
         } else {
           try {
